@@ -53,15 +53,20 @@ export default {
       //  make this next part recursive
       // but create an object thats identically nested
 
-      Object.keys(data).forEach((key) => {
-        if (!Object.keys.length(data[key])) {
-          if (averages[key] && averages[key].sum) {
-            averages[key].sum += parseInt(data[key])
+      Object.keys(data).forEach((key1) => {
+        if (!Object.keys.length(data[key1]) && !Array.isArray(data[key1])) {
+          if (averages[key1] && averages[key1].sum) {
+            averages[key1].sum += parseInt(data[key1])
           } else {
-            averages[key].sum = parseInt(data[key])
+            averages[key1].sum = parseInt(data[key1])
           }
+        } else if (Array.isArray(data[key1])) {
+        } else {
+          Object.keys(data[key1]).forEach((key2) => {})
         }
       })
+
+      return data
     },
     stackChartSetup() {
       const color = ['red', 'green']
