@@ -26,6 +26,23 @@ export default {
       sums: {
         recovery: {
           restingHeartRate: 0,
+          heartRateVariabilityRmssd: 0,
+          score: 0
+        },
+        sleep: {
+          score: 0
+        },
+        strain: {
+          averageHeartRate: 0,
+          maxHeartRate: 0,
+          score: 0,
+          rawScore: 0
+        }
+      },
+      sumsWithSleep: {
+        recovery: {
+          restingHeartRate: 0,
+          heartRateVariabilityRmssd: 0,
           score: 0
         },
         sleep: {
@@ -51,7 +68,22 @@ export default {
           rawScore: 0
         }
       },
-      averages: {},
+      averages: {
+        recovery: {
+          restingHeartRate: 0,
+          heartRateVariabilityRmssd: 0,
+          score: 0
+        },
+        sleep: {
+          score: 0
+        },
+        strain: {
+          averageHeartRate: 0,
+          maxHeartRate: 0,
+          score: 0,
+          rawScore: 0
+        }
+      },
       chart: '',
       keyMap: [
         { name: 'strainScore', color: 'red' },
@@ -62,6 +94,7 @@ export default {
   },
   mounted() {
     this.userData = userData
+    console.log('raw', this.userData)
     this.processData(this.userData)
 
     console.log(this.averages)
@@ -78,35 +111,9 @@ export default {
   },
   methods: {
     processData(data) {
+      let length = 0
       data.forEach((item) => {
-        // sums.recovery.restingHeartRate += item.recovery.restingHeartRate
-        // sums.recovery.score += item.recovery.score
-        // sums.sleep.score += item.sleep.score
-        // sum.sleep.sleeps.inBedDuration += item.sleep.sleeps[0].inBedDuration
-        // sum.sleep.sleeps.latencyDuration += item.sleep.sleeps[0].latencyDuration
-        // sum.sleep.sleeps.lightSleepDuration +=
-        //   item.sleep.sleeps[0].lightSleepDuration
-        // sum.sleep.sleeps.qualityDuration += item.sleep.sleeps[0].qualityDuration
-        // sum.sleep.sleeps.remSleepDuration +=
-        //   item.sleep.sleeps[0].remSleepDuration
-        // sum.sleep.sleeps.respiratoryRate += item.sleep.sleeps[0].respiratoryRate
-        // sum.sleep.sleeps.score += item.sleep.sleeps[0].score
-        // sum.sleep.sleeps.sleepConsistency +=
-        //   item.sleep.sleeps[0].sleepConsistency
-        // sum.sleep.sleeps.sleepEfficiency += item.sleep.sleeps[0].sleepEfficiency
-        // sum.sleep.sleeps.slowWaveSleepDuration +=
-        //   item.sleep.sleeps[0].slowWaveSleepDuration
-        // sum.sleep.sleeps.wakeDuration += item.sleep.sleeps[0].wakeDuration
-        // sum.strain.averageHeartRate += item.strain.averageHeartRate
-        // sum.strain.maxHeartRate += item.strain.maxHeartRate
-        // sum.strain.score += item.strain.score
-        // sum.strain.rawScore += item.strain.rawScore
-
-        // remove days with null values
-        // and update length the averages are based on
-
         let isValid = true
-        let length = 0
 
         Object.keys(this.sums).forEach((key1) => {
           const data1 = item[key1]
@@ -115,7 +122,7 @@ export default {
           if (data1 === null) {
             isValid = false
           } else {
-            Object.keys(data1).forEach((key2) => {
+            Object.keys(this.sums[key1]).forEach((key2) => {
               const data2 = item[key1][key2]
               if (data2 === null) {
                 isValid = false
@@ -125,7 +132,6 @@ export default {
         })
 
         if (isValid) {
-          console.log('isValid');
           length++
 
           Object.keys(this.sums).forEach((key1) => {
@@ -135,17 +141,13 @@ export default {
             const type1 = typeof data1
 
             if (type1 === 'number') {
-              if (this.sums[key1] && this.sums[key1]) {
-                this.sums[key1] += data1
-                // console.log('averages[key1]', this.averages[key1])
-              }
+              this.sums[key1] += data1
+              // console.log('averages[key1]', this.averages[key1])
             } else if (data1) {
-              Object.keys(data1).forEach((key2) => {
+              Object.keys(this.sums[key1]).forEach((key2) => {
                 const data2 = item[key1][key2]
-                if (this.sums[key1][key2] && this.sums[key1][key2]) {
-                  this.sums[key1][key2] += data2
-                  // console.log('averages[key1]', this.averages[key1])
-                }
+                this.sums[key1][key2] += data2
+                // console.log('averages[key1]', this.averages[key1])
               })
             }
           })
@@ -153,6 +155,7 @@ export default {
       })
 
       // divede to get averages
+      console.log('leg=ngth', length);
       Object.keys(this.sums).forEach((key1) => {
         const data1 = this.sums[key1]
         const type1 = typeof data1
@@ -163,13 +166,11 @@ export default {
         } else {
           Object.keys(data1).forEach((key2) => {
             const data2 = this.sums[key1][key2]
-            this.averages[key1] = data2 / length
+            this.averages[key1][key2] = data2 / length
             // console.log('averages[key1]', this.averages[key1])
           })
         }
       })
-
-      console.log('sums', this.sums)
     },
     stackChartSetup() {
       const color = ['red', 'green']
