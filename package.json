@@ -1,7 +1,7 @@
 {
-  "name": "cheatsheet",
+  "name": "Whoopchart",
   "version": "1.0.0",
-  "description": "Javascript cheat sheet",
+  "description": "",
   "author": "Charles Ryan",
   "private": true,
   "scripts": {

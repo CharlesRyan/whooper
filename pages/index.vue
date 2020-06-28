@@ -23,6 +23,35 @@ export default {
       accessToken: '',
       userId: '',
       userData: {},
+      sums: {
+        recovery: {
+          restingHeartRate: 0,
+          score: 0
+        },
+        sleep: {
+          score: 0,
+          sleeps: {
+            inBedDuration: 0,
+            latencyDuration: 0,
+            lightSleepDuration: 0,
+            qualityDuration: 0,
+            remSleepDuration: 0,
+            respiratoryRate: 0,
+            score: 0,
+            sleepConsistency: 0,
+            sleepEfficiency: 0,
+            slowWaveSleepDuration: 0,
+            wakeDuration: 0
+          }
+        },
+        strain: {
+          averageHeartRate: 0,
+          maxHeartRate: 0,
+          score: 0,
+          rawScore: 0
+        }
+      },
+      averages: {},
       chart: '',
       keyMap: [
         { name: 'strainScore', color: 'red' },
@@ -32,9 +61,10 @@ export default {
     }
   },
   mounted() {
-    this.userData = this.processData(userData)
+    this.userData = userData
+    this.processData(this.userData)
 
-    console.log(this.userData)
+    console.log(this.averages)
     // this.stackChartSetup()
     this.multiLineChartSetup()
   },
@@ -48,25 +78,98 @@ export default {
   },
   methods: {
     processData(data) {
-      const averages = {}
+      data.forEach((item) => {
+        // sums.recovery.restingHeartRate += item.recovery.restingHeartRate
+        // sums.recovery.score += item.recovery.score
+        // sums.sleep.score += item.sleep.score
+        // sum.sleep.sleeps.inBedDuration += item.sleep.sleeps[0].inBedDuration
+        // sum.sleep.sleeps.latencyDuration += item.sleep.sleeps[0].latencyDuration
+        // sum.sleep.sleeps.lightSleepDuration +=
+        //   item.sleep.sleeps[0].lightSleepDuration
+        // sum.sleep.sleeps.qualityDuration += item.sleep.sleeps[0].qualityDuration
+        // sum.sleep.sleeps.remSleepDuration +=
+        //   item.sleep.sleeps[0].remSleepDuration
+        // sum.sleep.sleeps.respiratoryRate += item.sleep.sleeps[0].respiratoryRate
+        // sum.sleep.sleeps.score += item.sleep.sleeps[0].score
+        // sum.sleep.sleeps.sleepConsistency +=
+        //   item.sleep.sleeps[0].sleepConsistency
+        // sum.sleep.sleeps.sleepEfficiency += item.sleep.sleeps[0].sleepEfficiency
+        // sum.sleep.sleeps.slowWaveSleepDuration +=
+        //   item.sleep.sleeps[0].slowWaveSleepDuration
+        // sum.sleep.sleeps.wakeDuration += item.sleep.sleeps[0].wakeDuration
+        // sum.strain.averageHeartRate += item.strain.averageHeartRate
+        // sum.strain.maxHeartRate += item.strain.maxHeartRate
+        // sum.strain.score += item.strain.score
+        // sum.strain.rawScore += item.strain.rawScore
 
-      //  make this next part recursive
-      // but create an object thats identically nested
+        // remove days with null values
+        // and update length the averages are based on
 
-      Object.keys(data).forEach((key1) => {
-        if (!Object.keys.length(data[key1]) && !Array.isArray(data[key1])) {
-          if (averages[key1] && averages[key1].sum) {
-            averages[key1].sum += parseInt(data[key1])
+        let isValid = true
+        let length = 0
+
+        Object.keys(this.sums).forEach((key1) => {
+          const data1 = item[key1]
+          const type1 = typeof data1
+
+          if (data1 === null) {
+            isValid = false
           } else {
-            averages[key1].sum = parseInt(data[key1])
+            Object.keys(data1).forEach((key2) => {
+              const data2 = item[key1][key2]
+              if (data2 === null) {
+                isValid = false
+              }
+            })
           }
-        } else if (Array.isArray(data[key1])) {
-        } else {
-          Object.keys(data[key1]).forEach((key2) => {})
+        })
+
+        if (isValid) {
+          console.log('isValid');
+          length++
+
+          Object.keys(this.sums).forEach((key1) => {
+            const isValid = true
+
+            const data1 = item[key1]
+            const type1 = typeof data1
+
+            if (type1 === 'number') {
+              if (this.sums[key1] && this.sums[key1]) {
+                this.sums[key1] += data1
+                // console.log('averages[key1]', this.averages[key1])
+              }
+            } else if (data1) {
+              Object.keys(data1).forEach((key2) => {
+                const data2 = item[key1][key2]
+                if (this.sums[key1][key2] && this.sums[key1][key2]) {
+                  this.sums[key1][key2] += data2
+                  // console.log('averages[key1]', this.averages[key1])
+                }
+              })
+            }
+          })
         }
       })
 
-      return data
+      // divede to get averages
+      Object.keys(this.sums).forEach((key1) => {
+        const data1 = this.sums[key1]
+        const type1 = typeof data1
+
+        if (type1 === 'number') {
+          this.averages[key1] = data1 / length
+          // console.log('averages[key1]', this.averages[key1])
+        } else {
+          Object.keys(data1).forEach((key2) => {
+            const data2 = this.sums[key1][key2]
+            this.averages[key1] = data2 / length
+            // console.log('averages[key1]', this.averages[key1])
+          })
+        }
+      })
+
+      console.log('sums', this.sums)
     },
     stackChartSetup() {
       const color = ['red', 'green']
