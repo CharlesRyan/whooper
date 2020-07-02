@@ -11,6 +11,7 @@
 
 <script>
 import * as d3 from 'd3'
+import * as c3 from 'c3'
 
 import userData from '../assets/staticData'
 
@@ -85,21 +86,37 @@ export default {
         }
       },
       chart: '',
-      keyMap: [
-        { name: 'strainScore', color: 'red' },
-        { name: 'avgHR', color: 'green' },
-        { name: 'sleepScore', color: 'blue' }
-      ]
+      interestingMetrics: {
+        data: {
+          strainScores: [],
+          avgHRs: [],
+          sleepScores: []
+        },
+        diffs: {
+          strainScores: [],
+          avgHRs: [],
+          sleepScores: [],
+          hrv: []
+        },
+        averages: {
+          strainScoreAvg: [],
+          avgHRAvg: [],
+          sleepScoreAvg: [],
+          hrv: []
+        },
+        days: []
+      }
     }
   },
   mounted() {
     this.userData = userData
-    console.log('raw', this.userData)
+    console.log('data', this.userData)
+    // populates this.averages
     this.processData(this.userData)
-
-    console.log(this.averages)
     // this.stackChartSetup()
-    this.multiLineChartSetup()
+    // this.multiLineChartSetup()
+    this.reduceInterestingMetrics(this.userData)
+    this.c3ChartSetup()
   },
   computed: {
     windowWidth() {
@@ -110,11 +127,71 @@ export default {
     }
   },
   methods: {
+    reduceInterestingMetrics(data) {
+      let count = 0
+      console.log('avgs', this.averages)
+      // this.interestingMetrics.averages.strainScore = this.averages.strain.score
+      // this.interestingMetrics.averages.avgHR = this.averages.strain.averageHeartRate
+      // this.interestingMetrics.averages.sleepScore = this.averages.sleep.score
+
+      data.forEach((item) => {
+        if (!item.recovery) return
+
+        const strainScore = item.strain.score
+        const avgHR = item.strain.averageHeartRate
+        const hrv = Math.round(item.recovery.heartRateVariabilityRmssd * 1000)
+        const sleepScore = item.sleep.score
+        const day = item.days[0]
+
+        if (strainScore && hrv && sleepScore) {
+          const normStrainScore = Math.round((strainScore / 21) * 100)
+
+          const normStrainScoreAvg = Math.round(
+            (this.averages.strain.score / 21) * 100
+          )
+          const averageHeartRateAvg = this.averages.strain.averageHeartRate
+          const sleepScoreAvg = this.averages.sleep.score
+          const avgHrv = this.averages.recovery.heartRateVariabilityRmssd
+
+          this.interestingMetrics.data.strainScores.push(normStrainScore)
+          this.interestingMetrics.data.avgHRs.push(avgHR)
+          this.interestingMetrics.data.sleepScores.push(sleepScore)
+
+          this.interestingMetrics.diffs.strainScores.push(
+            normStrainScore - normStrainScoreAvg
+          )
+          // this.interestingMetrics.diffs.avgHRs.push(avgHR - averageHeartRateAvg)
+          this.interestingMetrics.diffs.hrv.push(hrv - avgHrv)
+          this.interestingMetrics.diffs.sleepScores.push(
+            sleepScore - sleepScoreAvg
+          )
+
+          this.interestingMetrics.days.push(day)
+          count++
+        }
+      })
+
+      for (let i = 0; i < count; i++) {
+        const normStrainScore = Math.round(
+          (this.averages.strain.score / 21) * 100
+        )
+
+        this.interestingMetrics.averages.strainScoreAvg.push(normStrainScore)
+        this.interestingMetrics.averages.avgHRAvg.push(
+          this.averages.strain.averageHeartRate
+        )
+        this.interestingMetrics.averages.sleepScoreAvg.push(
+          this.averages.sleep.score
+        )
+      }
+    },
     processData(data) {
       let length = 0
+
       data.forEach((item) => {
         let isValid = true
 
+        // check there are values for this day
         Object.keys(this.sums).forEach((key1) => {
           const data1 = item[key1]
           const type1 = typeof data1
@@ -134,10 +211,13 @@ export default {
         if (isValid) {
           length++
 
+          // sum up values
           Object.keys(this.sums).forEach((key1) => {
             const isValid = true
 
-            const data1 = item[key1]
+            let data1 = item[key1]
+            if (key1 === 'heartRateVariabilityRmssd')
+              Math.round((data1 = data1 * 1000))
             const type1 = typeof data1
 
             if (type1 === 'number') {
@@ -145,7 +225,9 @@ export default {
               // console.log('averages[key1]', this.averages[key1])
             } else if (data1) {
               Object.keys(this.sums[key1]).forEach((key2) => {
-                const data2 = item[key1][key2]
+                let data2 = item[key1][key2]
+                if (key2 === 'heartRateVariabilityRmssd')
+                  Math.round((data2 = data2 * 1000))
                 this.sums[key1][key2] += data2
                 // console.log('averages[key1]', this.averages[key1])
               })
@@ -154,19 +236,18 @@ export default {
         }
       })
 
-      // divede to get averages
-      console.log('leg=ngth', length);
+      // divide to get averages
       Object.keys(this.sums).forEach((key1) => {
         const data1 = this.sums[key1]
         const type1 = typeof data1
 
         if (type1 === 'number') {
-          this.averages[key1] = data1 / length
+          this.averages[key1] = Math.round(data1 / length)
           // console.log('averages[key1]', this.averages[key1])
         } else {
           Object.keys(data1).forEach((key2) => {
             const data2 = this.sums[key1][key2]
-            this.averages[key1][key2] = data2 / length
+            this.averages[key1][key2] = Math.round(data2 / length)
             // console.log('averages[key1]', this.averages[key1])
           })
         }
@@ -400,13 +481,67 @@ export default {
       // Add the Y Axis
       svg.append('g').call(d3.axisLeft(y))
       // })
+    },
+    c3ChartSetup() {
+      const columns = []
+      const types = {}
+
+      // diff arrays
+      Object.keys(this.interestingMetrics.diffs).forEach((key) => {
+        if (this.interestingMetrics.diffs[key].length) {
+          columns.push([key, ...this.interestingMetrics.diffs[key]])
+        }
+      })
+
+      // // raw data arrays
+      // Object.keys(this.interestingMetrics.data).forEach((key) => {
+      //   columns.push([key, ...this.interestingMetrics.data[key]])
+      // })
+
+      // average arrays
+      // Object.keys(this.interestingMetrics.averages).forEach((key) => {
+      //   columns.push([key, ...this.interestingMetrics.averages[key]])
+      //   types[key] = 'line'
+      // })
+
+      const testColumns = [
+        ['data1', 30, 200, 100, 400, 150, 250],
+        ['data2', 50, 20, 10, 40, 15, 25]
+      ]
+
+      const chart = c3.generate({
+        bindto: '#chart',
+        data: {
+          columns: columns,
+          type: 'bar',
+          types: types,
+          labels: true
+        }
+      })
     }
   }
 }
 </script>
 
 <style>
-.axis path,
+.container {
+  margin: 0 auto;
+  min-height: 100vh;
+  max-width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.whoop__charts {
+  max-width: 100vw;
+}
+.whoop__charts .c3-chart-line {
+  /* fill: none; */
+}
+
+/* .axis path,
 .axis line {
   fill: none;
   stroke: #000;
@@ -423,14 +558,6 @@ export default {
   stroke-width: 1.5px;
 }
 
-.container {
-  margin: 0 auto;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
 
 .title {
   font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
@@ -452,5 +579,5 @@ export default {
 
 .links {
   padding-top: 15px;
-}
+} */
 </style>
