@@ -7,3 +7,5 @@ Currently just presents raw data in a sortable table with toggleable columns
 Working on more in-depth visualizations with charts and integration with a habit tracking app in order to unlock more personalized insights
 
 Uses Nuxt.js, Vue.js, c3.js, d3.js, and Vuetify
+
+Try out the current version at [whooper.io](https://whooper.io)
