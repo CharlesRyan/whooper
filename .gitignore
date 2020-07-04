@@ -93,3 +93,7 @@ sw.*
 
 # Vim swap files
 *.swp
+
+
+whoop_raw.json
+assets/staticData.js
