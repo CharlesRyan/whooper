@@ -1,41 +1,48 @@
 <template lang="pug">
-  v-app.container
-    v-row(
-      justify="space-around"
-      align="center"
-    )
-      v-col(
-        v-for="header in rawHeaders"
-        :key="header.value"
-        cols="2"
-      )
-        v-switch(
-          :label="header.text"
-          v-model="header.show"
-        )
+  v-app.data-table
+    v-expansion-panels
+      v-expansion-panel
+        v-expansion-panel-header Options
+        v-expansion-panel-content
+          v-row.flex-row.flex-wrap.data-table__options(
+            justify="space-around"
+            align="center"
+          )
+            v-col.col-xs-12.col-sm-6.col-md-4.col-lg-2(
+              v-for="header in rawHeaders"
+              :key="header.value"
+            )
+              v-switch(
+                :label="header.text"
+                v-model="header.show"
+              )
     v-data-table(
       v-model="selected"
       :headers="headers"
       :items="tableData"
       :single-select="singleSelect"
+      multi-sort
       item-key="date"
       class="elevation-1"
+      :loading="loading"
     )
 
 </template>
 
 <script>
-import Vuetify from 'Vuetify'
 
 import userData from '../assets/staticData'
 
 export default {
+  name: 'DataTable',
   components: {},
-  vuetify: new Vuetify(),
+  props: {
+    userData: Array
+  },
   data() {
     return {
-      userData: userData,
       singleSelect: false,
+      loading: true,
       selected: [],
       rawHeaders: [
         { text: 'Date', value: 'date', show: true },
@@ -46,17 +53,18 @@ export default {
         { text: 'Strain Score', value: 'strain', show: true },
         { text: 'Respiratory Rate', value: 'respiratoryRate', show: false },
         {
-          text: 'Light Sleep Duration',
+          text: 'Light Sleep Total',
           value: 'lightSleepDuration',
           show: false
         },
-        { text: 'REM Sleep Duration', value: 'remDuration', show: false },
-        { text: 'Deep Sleep Duration', value: 'swsDuration', show: false }
+        { text: 'REM Sleep Total', value: 'remDuration', show: false },
+        { text: 'Deep Sleep Total', value: 'swsDuration', show: false }
       ]
     }
   },
   mounted() {
     console.log(this.userData)
+    this.loading = false
   },
   computed: {
     headers() {
@@ -118,7 +126,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 .container {
   margin: 0 auto;
   min-height: 100vh;
@@ -127,9 +135,17 @@ export default {
   justify-content: center;
   align-items: center;
   text-align: center;
+
+  th {
+    text-align: center !important;
+  }
 }
 
-th {
-  text-align: center !important;
+.data-table {
+  width: 100%;
+
+  &__options {
+    // max-height: 200px;
+  }
 }
 </style>
