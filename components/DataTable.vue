@@ -30,12 +30,14 @@
 </template>
 
 <script>
+import Vuetify from 'vuetify'
 
 import userData from '../assets/staticData'
 
 export default {
   name: 'DataTable',
   components: {},
+  vuetify: new Vuetify(),
   props: {
     userData: Array
   },

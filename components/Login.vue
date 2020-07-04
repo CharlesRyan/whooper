@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import Vuetify from 'Vuetify'
+import Vuetify from 'vuetify'
 import axios from 'axios'
 
 import sampleData from '../assets/staticData'

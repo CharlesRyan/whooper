@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import Vuetify from 'Vuetify'
+import Vuetify from 'vuetify'
 
 import DataTable from '../components/DataTable'
 import Login from '../components/Login'
