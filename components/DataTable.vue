@@ -76,28 +76,28 @@ export default {
       rawImpactHeaders: [
         { text: 'Activity', value: 'activity', show: true },
         { text: 'HRV', value: 'hrv', show: true },
+          { text: 'ND HRV', value: 'hrvND', show: true },
         { text: 'Resting Heart Rate', value: 'rhr', show: true },
+          { text: 'ND Resting Heart Rate', value: 'rhrND', show: true },
         { text: 'Recovery Score', value: 'recovery', show: true },
+          { text: 'ND Recovery Score', value: 'recoveryND', show: true },
         { text: 'Sleep Score', value: 'sleep', show: true },
+          { text: 'ND Sleep Score', value: 'sleepND', show: true },
         { text: 'Strain Score', value: 'strain', show: true },
+          { text: 'ND Strain Score', value: 'strainND', show: true },
         {
           text: 'Light Sleep Total',
           value: 'lightSleepDuration',
           show: true
         },
-        { text: 'REM Sleep Total', value: 'remDuration', show: true },
-        { text: 'Deep Sleep Total', value: 'swsDuration', show: true },
-        { text: 'ND HRV', value: 'hrvND', show: true },
-        { text: 'ND Resting Heart Rate', value: 'rhrND', show: true },
-        { text: 'ND Recovery Score', value: 'recoveryND', show: true },
-        { text: 'ND Sleep Score', value: 'sleepND', show: true },
-        { text: 'ND Strain Score', value: 'strainND', show: true },
         {
           text: 'ND Light Sleep Total',
           value: 'lightSleepDurationND',
           show: true
         },
+        { text: 'REM Sleep Total', value: 'remDuration', show: true },
         { text: 'ND REM Sleep Total', value: 'remDurationND', show: true },
+        { text: 'Deep Sleep Total', value: 'swsDuration', show: true },
         { text: 'ND Deep Sleep Total', value: 'swsDurationND', show: true }
       ],
       tableData: [],
@@ -159,11 +159,17 @@ export default {
                 if (nextDayData) {
                   Object.keys(nextDayData).forEach((metric) => {
                     if (nextDayData[metric] !== 'no data') {
-                      const ndKey = `${metric}ND`;
-                      
-                      impactSums[activity][ndKey]['total'] +=
-                        nextDayData[metric]
-                      impactSums[activity][ndKey]['count']++
+                      const ndKey = `${metric}ND`
+                      if (impactSums[activity].hasOwnProperty(ndKey)) {
+                        impactSums[activity][ndKey]['total'] +=
+                          nextDayData[metric]
+                        impactSums[activity][ndKey]['count']++
+                      } else {
+                        impactSums[activity][ndKey] = {
+                          total: nextDayData[metric],
+                          count: 1
+                        }
+                      }
                     }
                   })
                 }
@@ -181,10 +187,11 @@ export default {
                     }
                   }
                 })
+
                 if (nextDayData) {
                   Object.keys(nextDayData).forEach((metric) => {
                     if (nextDayData[metric] !== 'no data') {
-                      const ndKey = `${metric}ND`;
+                      const ndKey = `${metric}ND`
 
                       impactSums[activity][ndKey] = {
                         total: nextDayData[metric],
@@ -197,9 +204,6 @@ export default {
             }
           })
         }
-
-
-        
       })
 
       // calculate averages for each activity
