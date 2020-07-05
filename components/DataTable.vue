@@ -231,9 +231,9 @@ export default {
                 this.tableDataAvgs[normMetric]['average']
 
               const percentChange =
-                (difference / this.tableDataAvgs[normMetric]['average']) * 100
+                Math.round((difference / this.tableDataAvgs[normMetric]['average']) * 100)
               const plus = percentChange > 0 ? '+' : ''
-              impactItem[metric] = `${plus}${percentChange.toFixed(2)}`
+              impactItem[metric] = `${plus}${percentChange}`
             }
           })
 
