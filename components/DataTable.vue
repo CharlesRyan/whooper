@@ -13,9 +13,9 @@
               v-col.col-12.col-xs-12.col-sm-12.col-md-4.col-lg-2(
                 v-for="header in rawHeaders"
                 :key="header.value"
+                v-if="header.text !== 'Date'"
               )
                 v-switch(
-                  v-if="header.text !== 'Date'"
                   :label="header.text"
                   v-model="header.show"
                 )
