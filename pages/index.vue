@@ -1,5 +1,5 @@
 <template lang="pug">
-  .container
+  .whooper
     DataTable(
       v-if="userData.length"
       :userData="userData"
@@ -8,6 +8,8 @@
       v-else 
       @setData="setData"
     )
+    .footer 
+      p 
 </template>
 
 <script>
@@ -46,12 +48,13 @@ export default {
 </script>
 
 <style>
-.container {
+.whooper {
   margin: 0 auto;
   min-height: 100vh;
   max-width: 100vw;
   display: flex;
   justify-content: center;
+  flex-direction: column;
   align-items: center;
   text-align: center;
 }

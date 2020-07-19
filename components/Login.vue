@@ -1,7 +1,9 @@
 <template lang="pug">
-  v-app.login
-    v-form(v-model="valid" @submit.prevent="fetchUserData")
-      v-container
+  v-app.align-center
+    .login.mx-10
+      h1 Whooper
+      p Visualization of raw data straight from Whoop's API
+      v-form(v-model="valid" @submit.prevent="fetchUserData")
         v-row
           v-col()
             v-text-field(
@@ -18,20 +20,26 @@
               type="password"
               required
             )
-            v-row.mb-4(
-              justify="center"
-            )
-              v-btn(
+            v-row.mt-6.justify-space-around
+
+              v-btn.mb-4(
                 :disabled="!valid"
                 type="submit"
+                color="primary"
+                large
               ) Fetch Whoop Data
-            v-row(
-              justify="center"
-            )
-              v-btn(
+
+              v-btn.mb-4(
                 @click="useSampleData"
+                large
               ) Use Sample Data
 
+      p.mt-8 Your credentials are never saved by this app. They are only used to request data from Whoop's servers.
+      p You can check out the source code 
+        a( 
+          href="https://github.com/CharlesRyan/whooper" 
+          target="_blank"
+        ) here
 
 </template>
 
@@ -64,7 +72,10 @@ export default {
     async fetchUserData() {
       const authResponse = await this.authenticate()
       console.log('fud', authResponse)
-      const userData = await this.getData(authResponse.user.id, authResponse.access_token)
+      const userData = await this.getData(
+        authResponse.user.id,
+        authResponse.access_token
+      )
       console.log('fud', userData)
       this.$emit('setData', userData)
     },
@@ -113,4 +124,18 @@ export default {
 }
 </script>
 
-<style></style>
+<style lang="scss">
+.v-application--wrap {
+  justify-content: center;
+  align-items: center;
+}
+
+.login {
+  margin: auto;
+  max-width: 500px;
+
+  h1 {
+    margin-bottom: 16px;
+  }
+}
+</style>

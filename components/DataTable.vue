@@ -1,31 +1,32 @@
 <template lang="pug">
-  v-app.data-table
-    v-expansion-panels
-      v-expansion-panel
-        v-expansion-panel-header Options
-        v-expansion-panel-content
-          v-row.flex-row.flex-wrap.data-table__options(
-            justify="space-around"
-            align="center"
-          )
-            v-col.col-xs-12.col-sm-6.col-md-4.col-lg-2(
-              v-for="header in rawHeaders"
-              :key="header.value"
+  v-app
+    .data-table
+      v-expansion-panels.my-10
+        v-expansion-panel(open)
+          v-expansion-panel-header Edit Columns
+          v-expansion-panel-content(open)
+            v-row.flex-row.flex-wrap.data-table__options(
+              justify="space-around"
+              align="center"
             )
-              v-switch(
-                :label="header.text"
-                v-model="header.show"
+              v-col.col-xs-12.col-sm-6.col-md-4.col-lg-2(
+                v-for="header in rawHeaders"
+                :key="header.value"
               )
-    v-data-table(
-      v-model="selected"
-      :headers="headers"
-      :items="tableData"
-      :single-select="singleSelect"
-      multi-sort
-      item-key="date"
-      class="elevation-1"
-      :loading="loading"
-    )
+                v-switch(
+                  :label="header.text"
+                  v-model="header.show"
+                )
+      v-data-table(
+        v-model="selected"
+        :headers="headers"
+        :items="tableData"
+        :single-select="singleSelect"
+        multi-sort
+        item-key="date"
+        class="elevation-1"
+        :loading="loading"
+      )
 
 </template>
 
@@ -129,6 +130,10 @@ export default {
 </script>
 
 <style lang="scss">
+.v-application {
+  width: 100%;
+}
+
 .container {
   margin: 0 auto;
   min-height: 100vh;
@@ -144,7 +149,11 @@ export default {
 }
 
 .data-table {
-  width: 100%;
+  width: 90%;
+  max-width: 1150px;
+  margin: 0 auto 100px;
+  display: flex;
+  justify-content: space-between;
 
   &__options {
     // max-height: 200px;
