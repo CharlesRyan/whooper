@@ -41,6 +41,13 @@
           target="_blank"
         ) here
 
+    
+    .footer.mb-2
+      p Built with 
+      img(src="https://nuxtjs.org/logos/nuxt-icon.png")
+      p by
+      a(href="https://charlesryan.dev") Charles
+
 </template>
 
 <script>

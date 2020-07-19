@@ -8,8 +8,6 @@
       v-else 
       @setData="setData"
     )
-    .footer 
-      p 
 </template>
 
 <script>
@@ -47,15 +45,33 @@ export default {
 }
 </script>
 
-<style>
+<style lang='scss'>
 .whooper {
   margin: 0 auto;
-  min-height: 100vh;
+  // min-height: 100vh;
   max-width: 100vw;
   display: flex;
   justify-content: center;
   flex-direction: column;
   align-items: center;
   text-align: center;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+
+  img, a {
+    margin: 0 3px;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  img {
+    width: auto;
+    height: 30px;
+  }
 }
 </style>
