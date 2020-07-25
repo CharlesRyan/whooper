@@ -114,6 +114,7 @@ export default {
     console.log('tableData', this.tableData)
     this.getTableDataAvgs()
     this.getImpactData()
+          this.$vuetify.theme.dark = true
   },
   computed: {
     headers() {
