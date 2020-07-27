@@ -76,15 +76,15 @@ export default {
       rawImpactHeaders: [
         { text: 'Activity', value: 'activity', show: true },
         { text: 'HRV', value: 'hrv', show: true },
-          { text: 'ND HRV', value: 'hrvND', show: true },
+        { text: 'ND HRV', value: 'hrvND', show: true },
         { text: 'Resting Heart Rate', value: 'rhr', show: true },
-          { text: 'ND Resting Heart Rate', value: 'rhrND', show: true },
+        { text: 'ND Resting Heart Rate', value: 'rhrND', show: true },
         { text: 'Recovery Score', value: 'recovery', show: true },
-          { text: 'ND Recovery Score', value: 'recoveryND', show: true },
+        { text: 'ND Recovery Score', value: 'recoveryND', show: true },
         { text: 'Sleep Score', value: 'sleep', show: true },
-          { text: 'ND Sleep Score', value: 'sleepND', show: true },
+        { text: 'ND Sleep Score', value: 'sleepND', show: true },
         { text: 'Strain Score', value: 'strain', show: true },
-          { text: 'ND Strain Score', value: 'strainND', show: true },
+        { text: 'ND Strain Score', value: 'strainND', show: true },
         {
           text: 'Light Sleep Total',
           value: 'lightSleepDuration',
@@ -114,7 +114,7 @@ export default {
     console.log('tableData', this.tableData)
     this.getTableDataAvgs()
     this.getImpactData()
-          this.$vuetify.theme.dark = true
+    this.$vuetify.theme.dark = true
   },
   computed: {
     headers() {
@@ -231,8 +231,9 @@ export default {
                 impactSums[activity][metric]['average'] -
                 this.tableDataAvgs[normMetric]['average']
 
-              const percentChange =
-                Math.round((difference / this.tableDataAvgs[normMetric]['average']) * 100)
+              const percentChange = Math.round(
+                (difference / this.tableDataAvgs[normMetric]['average']) * 100
+              )
               const plus = percentChange > 0 ? '+' : ''
               impactItem[metric] = `${plus}${percentChange}`
             }
