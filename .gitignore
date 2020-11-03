@@ -99,6 +99,8 @@ whoop_raw.json
 assets/staticData.js
 
 backend/creds.ini
+backend/credentials.json
+backend/sample_data/*
 
 **.ipynb_checkpoints
 **__pycache__
