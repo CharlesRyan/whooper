@@ -101,6 +101,7 @@ assets/staticData.js
 backend/creds.ini
 backend/credentials.json
 backend/sample_data/*
+backend/output/*
 
 **.ipynb_checkpoints
 **__pycache__
