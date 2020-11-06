@@ -2,6 +2,7 @@ import requests
 import pandas as pd
 import numpy as np
 import configparser
+import json
 from datetime import timedelta, datetime
 from dateutil import relativedelta, parser, rrule
 from dateutil.rrule import WEEKLY
@@ -52,6 +53,22 @@ class whoop_module:
             print("Authentication failed")
 
 
+    def get_sleep_detail(self, row, detail):
+        # sleep_details = json.loads(row['sleep.sleeps'][0])
+        # print(sleep_details)
+        # print(sleep_details[detail])
+        if row['sleep.sleeps'][detail]:
+            print('if')
+            print(row['sleep.sleeps'][detail])
+        elif row['sleep.sleeps']['during'][detail]:
+            print('else if')
+            print(row['sleep.sleeps']['during'][detail])
+        else:
+            print('nothin')
+
+        print('-------')
+        # return sleep_details[0][detail]
+
     def get_all_data(self):
         '''
         returns a dataframe of WHOOP metrics for each day 
@@ -80,6 +97,15 @@ class whoop_module:
                 all_data['days'] = all_data['days'].map(lambda d: d[0])
                 all_data.rename(columns = {"days":'day'}, inplace = True)
 
+
+                # extract sleep attributes into their pwn columns
+                # sleep_details = ['disturbanceCount', 'lightSleepDuration', 'remSleepDuration', 'respiratoryRate', 'sleepEfficiency', 'slowWaveSleepDuration']
+                # for detail in sleep_details:
+                #     all_data[detail] = all_data.apply(lambda row: self.get_sleep_detail(row, detail), axis=1)
+
+                # TODO: add them to the below ms to s conversion
+
+
                 ## Putting all time into minutes instead of milliseconds
                 sleep_cols = ['qualityDuration','needBreakdown.baseline','needBreakdown.debt','needBreakdown.naps',
                 'needBreakdown.strain','needBreakdown.total']
@@ -97,3 +123,20 @@ class whoop_module:
                 return all_data
         else:
             print("Authorization data not found")
+
+
+    def get_summary_data(self, refetch):
+        '''
+            returns only the data points that are useful for calculating activity impact
+        '''
+        interesting_columns = ['day', 'sleep.qualityDuration', 'sleep.score', 'strain.averageHeartRate', 'strain.score', 'recovery.heartRateVariabilityRmssd', 'recovery.restingHeartRate', 'recovery.score', 'nap_duration']
+
+        if refetch: 
+            all_data = self.get_all_data()
+            summary_data = all_data[interesting_columns].copy()
+            summary_data.to_csv('backend/output/whoop_summary_data.csv', index=False)
+        else:
+            summary_data = pd.read_csv('backend/output/whoop_summary_data.csv')
+
+
+        return summary_data
