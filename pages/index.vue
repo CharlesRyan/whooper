@@ -1,11 +1,12 @@
 <template lang="pug">
   .whooper
+    InputTable
     DataTable(
-      v-if="userData.length"
+      v-if="showDataTable"
       :userData="userData"
     )
-    Login(
-      v-else 
+    WhoopLogin(
+      v-if="showWhoopLogin"
       @setData="setData"
     )
 </template>
@@ -14,13 +15,15 @@
 import Vuetify from 'vuetify'
 
 import DataTable from '../components/DataTable'
-import Login from '../components/Login'
+import InputTable from '../components/InputTable'
+import WhoopLogin from '../components/WhoopLogin'
 import Chart from '../components/Chart'
 
 export default {
   components: {
     DataTable,
-    Login,
+    InputTable,
+    WhoopLogin,
     Chart
   },
   vuetify: new Vuetify(),
@@ -31,6 +34,8 @@ export default {
       accessToken: '',
       userId: '',
       userData: [],
+      showDataTable: false,
+      showWhoopLogin: false
     }
   },
   mounted() {
