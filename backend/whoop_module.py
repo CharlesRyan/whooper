@@ -21,7 +21,8 @@ class whoop_module:
         response = requests.get(url, headers = headers)
         if response.status_code == 200 and len(response.content) > 1:
             if df:
-                d = pd.json_normalize(response.json())
+                res = self.flatten_nested_items(response.json())
+                d = pd.json_normalize(res)
                 return d
             else:
                 return response.json()
@@ -52,30 +53,16 @@ class whoop_module:
         else:
             print("Authentication failed")
 
-
-    def get_sleep_detail(self, row, detail):
-        # sleep_details = json.loads(row['sleep.sleeps'][0])
-        # print(sleep_details)
-        # print(sleep_details[detail])
-        if row['sleep.sleeps'][detail]:
-            print('if')
-            print(row['sleep.sleeps'][detail])
-        elif row['sleep.sleeps']['during'][detail]:
-            print('else if')
-            print(row['sleep.sleeps']['during'][detail])
-        else:
-            print('nothin')
-
-        print('-------')
-        # return sleep_details[0][detail]
-
-    def get_all_data(self):
+    def get_all_data(self, refetch=True):
         '''
         returns a dataframe of WHOOP metrics for each day 
         In each dataframe, each day is a row and contains strain, recovery, and sleep information
         '''
 
-        if self.start_datetime:
+        if not refetch: 
+            self.all_data = pd.read_csv('backend/output/whoop_all_data.csv')
+
+        if not refetch or self.start_datetime:
             if self.all_data is not None:
                 ## All data already pulled
                 return self.all_data
@@ -97,18 +84,8 @@ class whoop_module:
                 all_data['days'] = all_data['days'].map(lambda d: d[0])
                 all_data.rename(columns = {"days":'day'}, inplace = True)
 
-
-                # extract sleep attributes into their pwn columns
-                # sleep_details = ['disturbanceCount', 'lightSleepDuration', 'remSleepDuration', 'respiratoryRate', 'sleepEfficiency', 'slowWaveSleepDuration']
-                # for detail in sleep_details:
-                #     all_data[detail] = all_data.apply(lambda row: self.get_sleep_detail(row, detail), axis=1)
-
-                # TODO: add them to the below ms to s conversion
-
-
                 ## Putting all time into minutes instead of milliseconds
-                sleep_cols = ['qualityDuration','needBreakdown.baseline','needBreakdown.debt','needBreakdown.naps',
-                'needBreakdown.strain','needBreakdown.total']
+                sleep_cols = ['qualityDuration', 'sleep.sleeps.qualityDuration', 'needBreakdown.baseline', 'needBreakdown.debt', 'needBreakdown.naps', 'needBreakdown.strain', 'needBreakdown.total', 'sleep.sleeps.inBedDuration', 'sleep.sleeps.latencyDuration', 'sleep.sleeps.lightSleepDuration', 'sleep.sleeps.remSleepDuration']
                 for sleep_col in sleep_cols:
                     all_data['sleep.' + sleep_col] = all_data['sleep.' + sleep_col].astype(float).apply(lambda x: np.nan if np.isnan(x) else x/60000)
 
@@ -120,6 +97,11 @@ class whoop_module:
                 all_data.drop_duplicates(subset = ['day','sleep.id'],inplace = True)
 
                 self.all_data = all_data
+
+                ###################### dev only
+                all_data.to_csv('backend/output/whoop_all_data.csv', index=False)
+                ###################### dev only
+
                 return all_data
         else:
             print("Authorization data not found")
@@ -131,12 +113,21 @@ class whoop_module:
         '''
         interesting_columns = ['day', 'sleep.qualityDuration', 'sleep.score', 'strain.averageHeartRate', 'strain.score', 'recovery.heartRateVariabilityRmssd', 'recovery.restingHeartRate', 'recovery.score', 'nap_duration']
 
-        if refetch: 
-            all_data = self.get_all_data()
-            summary_data = all_data[interesting_columns].copy()
-            summary_data.to_csv('backend/output/whoop_summary_data.csv', index=False)
-        else:
-            summary_data = pd.read_csv('backend/output/whoop_summary_data.csv')
-
+        all_data = self.get_all_data(refetch)
+        summary_data = all_data[interesting_columns].copy()
 
         return summary_data
+
+
+    def flatten_nested_items(self, res):
+        for day in res:
+            sleep_details = day['sleep']['sleeps']
+            workout_details = day['strain']['workouts']
+
+            if len(sleep_details) > 0: 
+                day['sleep']['sleeps'] = sleep_details[0]
+
+            if len(workout_details) > 0: 
+                day['strain']['workouts'] = workout_details[0]
+
+        return res

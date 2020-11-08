@@ -10,20 +10,20 @@ class main:
     self.whoop_df = self.get_whoop_data()
     self.gsheet_df = self.get_gsheet_data()
 
-
   def get_whoop_data(self):
     whoop = whoop_module()
-    refetch = False
-    # refetch = True
+    # refetch = False
+    refetch = True
     if refetch: whoop.authorize(self.CRED_PATH)
-    return whoop.get_summary_data(refetch)
-    # return whoop.get_all_data(refetch)
+
+    # return whoop.get_summary_data(refetch)
+    return whoop.get_all_data(refetch)
 
 
+    # TODO: move this into gsheet module after frontend integration
   def get_gsheet_data(self):
     # transform gsheet date to whoop format so the datasets can be joined based on date
     # whoop date format: 2020-06-04
-    # TODO: move this data transformation into gsheet module after frontend integration
 
     with open('backend/sample_data/gsheet.json') as f:
       sample_gsheet_data = json.load(f)
@@ -47,7 +47,21 @@ class main:
     gsheet_df = pd.DataFrame(gsheet_data_rows, columns=gsheet_data_headers)
 
     # parse data to ints
-    # gsheet_df['days'] = gsheet_df['days'].map(lambda d: d[0])
+    # TODO: make this more dynamic, maybe check types of a random row
+      # check if cell contents == 'TRUE' or 'FALSE', and try: isNaN(int(cell))
+    numerical_items = ['Moda', 'Coffee', 'Meditation', 'Alcohol']
+    for itm in numerical_items:
+      gsheet_df[itm] = gsheet_df[itm].map(lambda d: int(d) if len(d) else 0)
+
+    boolean_items = ['Nap', 'Journal', 'Morning walk', 'Morning sun', 'Weighted blanket', 'MD']
+    for itm in boolean_items:
+      gsheet_df[itm] = gsheet_df[itm].map(lambda d: 1 if d == 'TRUE' else 0)
+
+    prev_day_items = ['Moda', 'Coffee', 'Meditation', 'Alcohol', 'Morning walk', 'Morning sun', 'Weighted blanket', 'MD']
+    for itm in prev_day_items:
+      new_col_name = itm + ' - p'
+      gsheet_df[new_col_name] = gsheet_df[itm].copy()
+      gsheet_df[new_col_name].shift(1)
 
     return gsheet_df
 
@@ -64,7 +78,11 @@ class main:
     all_data.to_csv('backend/output/merged_data.csv', index=False)
     print('Output sent to csv')
 
-    print(all_data.corr())
+    # print(self.whoop_df)
+    # print(all_data.head())
+    # print(all_data)
+    # print(all_data.corr())
+
 
 
 main = main()
