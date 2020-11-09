@@ -62,6 +62,10 @@ export default {
   text-align: center;
 }
 
+.teal-bg {
+  background-color: #708a8c;
+}
+
 .footer {
   display: flex;
   align-items: center;

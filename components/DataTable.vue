@@ -53,20 +53,88 @@ export default {
       singleSelect: false,
       loading: true,
       selected: [],
-      rawHeaders: []
+      rawHeaders: [
+        { text: 'Date', value: 'date', show: true },
+        { text: 'HRV', value: 'hrv', show: true },
+        { text: 'Resting Heart Rate', value: 'rhr', show: true },
+        { text: 'Recovery Score', value: 'recovery', show: true },
+        { text: 'Sleep Score', value: 'sleep', show: true },
+        { text: 'Strain Score', value: 'strain', show: true },
+        { text: 'Respiratory Rate', value: 'respiratoryRate', show: false },
+        {
+          text: 'Light Sleep Total',
+          value: 'lightSleepDuration',
+          show: false
+        },
+        { text: 'REM Sleep Total', value: 'remDuration', show: false },
+        { text: 'Deep Sleep Total', value: 'swsDuration', show: false }
+      ]
     }
   },
   mounted() {
     this.loading = false
   },
   computed: {
+    headers() {
+      return this.rawHeaders.filter((header) => header.show)
+    },
+    tableData() {
+      return this.userData.map((item) => {
+        const hrv = item.recovery
+          ? Math.round(item.recovery.heartRateVariabilityRmssd * 1000)
+          : 'no data'
+        const rhr = item.recovery ? item.recovery.restingHeartRate : 'no data'
+        const recovery = item.recovery ? item.recovery.score : 'no data'
+        const sleep = item.sleep ? item.sleep.score : 'no data'
+        const strain = item.strain ? Math.round(item.strain.score) : 'no data'
+
+        const respiratoryRate =
+          item.sleep && item.sleep.sleeps[0]
+            ? Math.round(item.sleep.sleeps[0].respiratoryRate)
+            : 'no data'
+        const remDuration =
+          item.sleep && item.sleep.sleeps[0]
+            ? this.msToTime(item.sleep.sleeps[0].remSleepDuration)
+            : 'no data'
+        const lightSleepDuration =
+          item.sleep && item.sleep.sleeps[0]
+            ? this.msToTime(item.sleep.sleeps[0].lightSleepDuration)
+            : 'no data'
+        const swsDuration =
+          item.sleep && item.sleep.sleeps[0]
+            ? this.msToTime(item.sleep.sleeps[0].slowWaveSleepDuration)
+            : 'no data'
+
+        return {
+          date: item.days[0],
+          hrv: hrv,
+          rhr: rhr,
+          recovery: recovery,
+          sleep: sleep,
+          strain: strain,
+          respiratoryRate: respiratoryRate,
+          remDuration: remDuration,
+          lightSleepDuration: lightSleepDuration,
+          swsDuration: swsDuration
+        }
+      })
+    }
   },
   methods: {
+    msToTime(duration) {
+      let minutes = Math.floor((duration / (1000 * 60)) % 60)
+      let hours = Math.floor((duration / (1000 * 60 * 60)) % 24)
+
+      hours = hours < 10 ? '0' + hours : hours
+      minutes = minutes < 10 ? '0' + minutes : minutes
+
+      return hours + ':' + minutes
+    }
   }
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .v-application {
   width: 100%;
 

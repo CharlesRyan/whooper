@@ -5,9 +5,6 @@
         type='text'
         @paste='onPaste'
       )
-      p(
-        v-if='loading'
-      ) Parsing {{inputHeaders.length}} columns and {{inputRows.length}} rows...
       v-data-table.elevation-1(:headers='headers' :items='tableRows' sort-by='calories')
         template(v-slot:top)
           v-toolbar(flat)
@@ -16,30 +13,19 @@
             v-spacer
             v-dialog(v-model='dialog' max-width='500px')
               template(v-slot:activator='{ on, attrs }')
-                v-btn.mb-2(color='primary' dark v-bind='attrs' v-on='on')
-                  | New Item
+                v-btn.mb-2(color='primary' dark v-bind='attrs' v-on='on') New Row
               v-card
                 v-card-title
                   span.headline {{ formTitle }}
                 v-card-text
                   v-container
                     v-row
-                      v-col(cols='12' sm='6' md='4')
-                        v-text-field(v-model='editedItem.name' label='Dessert name')
-                      v-col(cols='12' sm='6' md='4')
-                        v-text-field(v-model='editedItem.calories' label='Calories')
-                      v-col(cols='12' sm='6' md='4')
-                        v-text-field(v-model='editedItem.fat' label='Fat (g)')
-                      v-col(cols='12' sm='6' md='4')
-                        v-text-field(v-model='editedItem.carbs' label='Carbs (g)')
-                      v-col(cols='12' sm='6' md='4')
-                        v-text-field(v-model='editedItem.protein' label='Protein (g)')
+                      v-col(cols='12' sm='6' md='4' v-for="key in Object.keys(editedItem)" :key='key')
+                        v-text-field(v-model='editedItem[key]' :label='key | capitalize')
                 v-card-actions
                   v-spacer
-                  v-btn(color='blue darken-1' text='' @click='close')
-                    | Cancel
-                  v-btn(color='blue darken-1' text='' @click='save')
-                    | Save
+                  v-btn(color='blue darken-1' text='' @click='close') Cancel
+                  v-btn(color='blue darken-1' text='' @click='save') Save
             v-dialog(v-model='dialogDelete' max-width='500px')
               v-card
                 v-card-title.headline Are you sure you want to delete this item?
@@ -49,13 +35,10 @@
                   v-btn(color='blue darken-1' text='' @click='deleteItemConfirm') OK
                   v-spacer
         template(v-slot:item.actions='{ item }')
-          v-icon.mr-2(small @click='editItem(item)')
-            | mdi-pencil
-          v-icon(small='' @click='deleteItem(item)')
-            | mdi-delete
+          v-icon.mr-2(small @click='editItem(item)') mdi-pencil
+          v-icon(small='' @click='deleteItem(item)') mdi-delete
         template(v-slot:no-data)
-          v-btn(color='primary' @click='initialize')
-            | Reset
+          v-btn(color='primary' @click='initialize') Reset
     
     
     .footer.mb-2
@@ -87,35 +70,9 @@ export default {
       // sample data
       dialog: false,
       dialogDelete: false,
-      headers: [
-        {
-          text: 'Dessert (100g serving)',
-          align: 'start',
-          sortable: false,
-          value: 'name'
-        },
-        { text: 'Calories', value: 'calories' },
-        { text: 'Fat (g)', value: 'fat' },
-        { text: 'Carbs (g)', value: 'carbs' },
-        { text: 'Protein (g)', value: 'protein' },
-        { text: 'Actions', value: 'actions', sortable: false }
-      ],
       tableRows: [],
       editedIndex: -1,
-      editedItem: {
-        name: '',
-        calories: 0,
-        fat: 0,
-        carbs: 0,
-        protein: 0
-      },
-      defaultItem: {
-        name: '',
-        calories: 0,
-        fat: 0,
-        carbs: 0,
-        protein: 0
-      }
+      editedItem: {}
     }
   },
   mounted() {
@@ -125,17 +82,25 @@ export default {
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+    },
+    headers() {
+      if (!this.tableRows.length) return []
+      const headerItems = Object.keys(this.tableRows[0]).map((key) => {
+        return {
+          text: this.$options.filters.capitalize(key),
+          value: key
+        }
+      })
+
+      headerItems.push({ text: 'Actions', value: 'actions', sortable: false })
+      return headerItems
     }
   },
   methods: {
     onPaste(e) {
-      this.loading = true;
+      this.loading = true
       console.log(e)
-      if (
-        !e.clipboardData ||
-        !e.clipboardData.items
-      )
-        return
+      if (!e.clipboardData || !e.clipboardData.items) return
       const items = e.clipboardData.items
       let data
       for (let i = 0; i < items.length; i++) {
@@ -150,6 +115,7 @@ export default {
         const rowsOfText = text.split('\n')
         let header = []
         const rows = []
+        console.log(rowsOfText)
         rowsOfText.forEach((rowAsText) => {
           // Remove wrapping double quotes
           const row = rowAsText.split('\t').map((colAsText) => {
@@ -165,18 +131,21 @@ export default {
             rows.push(row.slice(0, header.length))
           }
         })
-        this.inputHeaders = header
-        this.inputRows = rows
-        this.buildTable(header, rows)
+        this.buildTableRows(header, rows)
       })
     },
-    buildTable(header, rows) {
-      console.log(header);
-      console.log(rows);
-      // append to existing
-      // this.loading = false;
+    buildTableRows(header, rows) {
+      // TODO: refactor for efficiency
+      const newRows = rows.map((row, rowIdx) => {
+        const rowObj = {}
+        header.forEach((headItm, headIdx) => {
+          rowObj[headItm] = row[headIdx]
+        })
+        return rowObj
+      })
+
+      this.tableRows = newRows
     },
-    // sample methods
     initialize() {
       this.tableRows = [
         {
@@ -250,17 +219,18 @@ export default {
           protein: 7
         }
       ]
+      this.setEditedItem({})
     },
 
     editItem(item) {
       this.editedIndex = this.tableRows.indexOf(item)
-      this.editedItem = Object.assign({}, item)
+      this.setEditedItem(item)
       this.dialog = true
     },
 
     deleteItem(item) {
       this.editedIndex = this.tableRows.indexOf(item)
-      this.editedItem = Object.assign({}, item)
+      this.setEditedItem(item)
       this.dialogDelete = true
     },
 
@@ -272,7 +242,7 @@ export default {
     close() {
       this.dialog = false
       this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
+        this.setEditedItem({})
         this.editedIndex = -1
       })
     },
@@ -280,7 +250,7 @@ export default {
     closeDelete() {
       this.dialogDelete = false
       this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
+        this.setEditedItem({})
         this.editedIndex = -1
       })
     },
@@ -292,6 +262,24 @@ export default {
         this.tableRows.push(this.editedItem)
       }
       this.close()
+    },
+
+    setEditedItem(item) {
+      const itemKeys = Object.keys(item)
+      if (itemKeys.length === 0) {
+        // initialize item to default values of the keys present on table data
+        const defaultKeys = this.tableRows[0]
+          ? Object.keys(this.tableRows[0])
+          : []
+        defaultKeys.forEach((key) => {
+          this.$set(this.editedItem, key, '')
+        })
+      } else {
+        // set it to the values passed in
+        itemKeys.forEach((key) => {
+          this.$set(this.editedItem, key, item[key])
+        })
+      }
     }
   },
   watch: {
@@ -300,6 +288,13 @@ export default {
     },
     dialogDelete(val) {
       val || this.closeDelete()
+    }
+  },
+  filters: {
+    capitalize: function(value) {
+      if (!value) return ''
+      value = value.toString()
+      return value.charAt(0).toUpperCase() + value.slice(1)
     }
   }
 }
@@ -316,7 +311,7 @@ export default {
 
 .container {
   margin: 0 auto;
-  min-height: 100vh;
+  // min-height: 100vh;
   max-width: 100vw;
   display: flex;
   justify-content: center;
