@@ -300,7 +300,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .v-application {
   width: 100%;
 

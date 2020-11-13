@@ -1,7 +1,7 @@
 import json
 import pandas as pd
 
-from whoop_module import whoop_module
+from modules.whoop_module import whoop_module
 
 class main:
 

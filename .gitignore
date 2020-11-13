@@ -102,6 +102,9 @@ backend/creds.ini
 backend/credentials.json
 backend/sample_data/*
 backend/output/*
+backend/bin
+backend/lib
+backend.zip
 
 **.ipynb_checkpoints
 **__pycache__
