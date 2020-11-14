@@ -62,11 +62,13 @@ class whoop_module:
         if not refetch: 
             self.all_data = pd.read_csv('backend/output/whoop_all_data.csv')
 
+        # presence of start_datetime indicates auth has been run, but auth is only necessary if we're refetching
         if not refetch or self.start_datetime:
             if self.all_data is not None:
                 ## All data already pulled
                 return self.all_data
             else:
+                # refetch data
                 start_date = parser.isoparse(self.start_datetime).replace(tzinfo = None)
                 end_time = 'T23:59:59.999Z'
                 start_time = 'T00:00:00.000Z'
@@ -85,9 +87,12 @@ class whoop_module:
                 all_data.rename(columns = {"days":'day'}, inplace = True)
 
                 ## Putting all time into minutes instead of milliseconds
-                sleep_cols = ['qualityDuration', 'sleep.sleeps.qualityDuration', 'needBreakdown.baseline', 'needBreakdown.debt', 'needBreakdown.naps', 'needBreakdown.strain', 'needBreakdown.total', 'sleep.sleeps.inBedDuration', 'sleep.sleeps.latencyDuration', 'sleep.sleeps.lightSleepDuration', 'sleep.sleeps.remSleepDuration']
+                sleep_cols = ['sleep.qualityDuration', 'sleep.sleeps.qualityDuration', 'sleep.needBreakdown.baseline', 'sleep.needBreakdown.debt', 'sleep.needBreakdown.naps', 'sleep.needBreakdown.strain', 'sleep.needBreakdown.total', 'sleep.sleeps.inBedDuration', 'sleep.sleeps.latencyDuration', 'sleep.sleeps.lightSleepDuration', 'sleep.sleeps.remSleepDuration', 'sleep.sleeps.wakeDuration', 'sleep.sleeps.slowWaveSleepDuration']
                 for sleep_col in sleep_cols:
-                    all_data['sleep.' + sleep_col] = all_data['sleep.' + sleep_col].astype(float).apply(lambda x: np.nan if np.isnan(x) else x/60000)
+                    try:
+                        all_data[sleep_col] = all_data[sleep_col].astype(float).apply(lambda x: np.nan if np.isnan(x) else x/60000)
+                    except:
+                        print('issue with', sleep_col)
 
                 ## Making nap variable
                 all_data['nap_duration'] = all_data['sleep.naps'].apply(lambda x: x[0]['qualityDuration']/60000 if len(x) == 1 else(
@@ -100,6 +105,7 @@ class whoop_module:
 
                 ###################### dev only
                 all_data.to_csv('backend/output/whoop_all_data.csv', index=False)
+                print('Whoop all_data sent to csv')
                 ###################### dev only
 
                 return all_data
