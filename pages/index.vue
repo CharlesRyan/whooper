@@ -1,6 +1,7 @@
 <template lang="pug">
   .whooper
-    InputTable
+    Graph
+    //- InputTable
     DataTable(
       v-if="showDataTable"
       :userData="userData"
@@ -18,13 +19,15 @@ import DataTable from '../components/DataTable'
 import InputTable from '../components/InputTable'
 import WhoopLogin from '../components/WhoopLogin'
 import Chart from '../components/Chart'
+import Graph from '../components/Graph'
 
 export default {
   components: {
     DataTable,
     InputTable,
     WhoopLogin,
-    Chart
+    Chart,
+    Graph
   },
   vuetify: new Vuetify(),
   data() {
@@ -66,21 +69,4 @@ export default {
   background-color: #708a8c;
 }
 
-.footer {
-  display: flex;
-  align-items: center;
-
-  img, a {
-    margin: 0 3px;
-  }
-
-  p {
-    margin: 0;
-  }
-
-  img {
-    width: auto;
-    height: 30px;
-  }
-}
 </style>

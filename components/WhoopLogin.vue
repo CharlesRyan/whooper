@@ -42,11 +42,7 @@
         ) here
 
     
-    .footer.mb-2
-      p Built with 
-      img(src="https://nuxtjs.org/logos/nuxt-icon.png")
-      p by
-      a(href="https://charlesryan.dev") Charles
+    Footer
 
 </template>
 
@@ -54,10 +50,14 @@
 import Vuetify from 'vuetify'
 import axios from 'axios'
 
+import Footer from './Footer'
+
 import sampleData from '../assets/staticData'
 
 export default {
-  components: {},
+  components: {
+    Footer
+  },
   vuetify: new Vuetify(),
   data() {
     return {

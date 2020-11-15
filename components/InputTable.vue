@@ -40,21 +40,21 @@
         template(v-slot:no-data)
           v-btn(color='primary' @click='initialize') Reset
     
-    
-    .footer.mb-2
-      p Built with 
-      img(src="https://nuxtjs.org/logos/nuxt-icon.png")
-      p by
-      a(href="https://charlesryan.dev") Charles
+    Footer
 
 </template>
 
 <script>
 import Vuetify from 'vuetify'
+import axios from 'axios'
+
+import Footer from './Footer'
 
 export default {
   name: 'InputTable',
-  components: {},
+  components: {
+    Footer
+  },
   vuetify: new Vuetify(),
   props: {
     userData: Array
@@ -78,6 +78,7 @@ export default {
   mounted() {
     this.initialize()
     this.loading = false
+    this.hitAPI()
   },
   computed: {
     formTitle() {
@@ -97,6 +98,15 @@ export default {
     }
   },
   methods: {
+   async hitAPI(){
+      const url = 'https://mjlck5n8ke.execute-api.us-west-1.amazonaws.com/whooper'
+      try {
+        const response = await axios.get(url)
+        console.log('response', response)
+      } catch (e) {
+        console.log('data error', e)
+      }
+    },
     onPaste(e) {
       this.loading = true
       console.log(e)

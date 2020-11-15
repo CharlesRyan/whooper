@@ -30,20 +30,20 @@
         :loading="loading"
       )
     
-    .footer.mb-2
-      p Built with 
-      img(src="https://nuxtjs.org/logos/nuxt-icon.png")
-      p by
-      a(href="https://charlesryan.dev") Charles
+    Footer
 
 </template>
 
 <script>
 import Vuetify from 'vuetify'
 
+import Footer from './Footer'
+
 export default {
   name: 'DataTable',
-  components: {},
+  components: {
+    Footer
+  },
   vuetify: new Vuetify(),
   props: {
     userData: Array
