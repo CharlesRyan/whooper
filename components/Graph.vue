@@ -3,7 +3,8 @@
     .graph
       d3-network(
         v-if='showGraph'
-        :net-nodes='nodes'
+        :class="['graph__network', {active: showGraph}]"
+        :net-nodes='usefulNodes'
         :net-links='links'
         :options='graphOptions'
       )
@@ -39,14 +40,7 @@ export default {
     return {
       correlations: [],
       toggles: [],
-      graphOptions: {
-        force: 3000,
-        size: { w: window.innerWidth, h: window.innerHeight - 50 },
-        nodeSize: 20,
-        nodeLabels: true,
-        linkLabels: true,
-        canvas: false
-      }
+      nodesWithLinks: []
     }
   },
   mounted() {
@@ -54,8 +48,12 @@ export default {
     this.getSampleData()
   },
   computed: {
-    showGraph(){
-      return this.correlations.length && this.nodes.length && this.links.length
+    showGraph() {
+      return !!(
+        this.correlations.length &&
+        this.nodes.length &&
+        this.links.length
+      )
     },
     nodes() {
       return this.correlations.map((corr) => {
@@ -65,14 +63,33 @@ export default {
         }
       })
     },
+    usefulNodes() {
+      return Array.from(new Set(this.nodesWithLinks)).map((node) => {
+        return {
+          id: node,
+          name: node
+        }
+      })
+    },
     links() {
       const allLinks = []
       const significanceLimit = 0.1
       const maxStrokeWidth = 10
 
+      const linkTable = {}
+
       this.correlations.forEach((corr) => {
-        Object.keys(corr.data).forEach((key) => {
-          if (corr.data[key] && Math.abs(corr.data[key]) > significanceLimit) {
+        linkTable[corr.name] = {}
+        const corrData = Object.keys(corr.data)
+
+        corrData.forEach((key) => {
+          const tableHasKey =
+            linkTable.hasOwnProperty(key) &&
+            linkTable[key].hasOwnProperty(corr.name)
+          const isSignificant = Math.abs(corr.data[key]) > significanceLimit
+          const notNull = !!corr.data[key]
+
+          if (notNull && isSignificant && !tableHasKey) {
             const color = corr.data[key] > 0 ? 'green' : 'red'
             const strokeWidth = Math.abs(corr.data[key]) * maxStrokeWidth
             const opacity = Math.abs(corr.data[key])
@@ -88,10 +105,31 @@ export default {
             }
 
             allLinks.push(link)
+
+            linkTable[corr.name][key] = true
+            this.nodesWithLinks.push(key)
           }
         })
       })
+
       return allLinks
+    },
+
+    graphOptions() {
+      // example had 3000
+      const nodeMultiple = this.nodes.length * 200
+      const windowMultiple = window.innerWidth * 2
+      const force =
+        nodeMultiple > windowMultiple ? windowMultiple : nodeMultiple
+
+      return {
+        force,
+        size: { w: window.innerWidth, h: window.innerHeight - 50 },
+        nodeSize: 20,
+        nodeLabels: true,
+        linkLabels: true,
+        canvas: false
+      }
     }
   },
   methods: {
@@ -126,6 +164,16 @@ export default {
 .graph {
   width: 100%;
   height: 100%;
+
+  &__network {
+    opacity: 0;
+
+    &.active {
+      transition-delay: 10s;
+      transition: all ease 3s;
+      opacity: 1;
+    }
+  }
 }
 
 .container {
