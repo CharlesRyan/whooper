@@ -37,9 +37,8 @@ class sheet_module:
       gsheet_df[col] = gsheet_df[col].map(self.convert_items)
 
       # insert previous day's activities
-      new_col_name = col + ' - p'
-      gsheet_df[new_col_name] = gsheet_df[col].copy()
-      gsheet_df[new_col_name].shift(1)
+      new_col_name = col + ' (prev day)'
+      gsheet_df[new_col_name] = gsheet_df[col].copy().shift(1)
 
     return gsheet_df
 

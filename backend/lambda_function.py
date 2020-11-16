@@ -59,8 +59,7 @@ class Main:
   def sheet_output(self):
     pd.set_option("display.max_rows", None, "display.max_columns", None)
     print('----------------------')
-    print('all types')
-    # print(self.sheet_df)
+    print(self.sheet_df)
     # print(self.sheet_df.corr())
     # print(self.sheet_df.dtypes)
 
