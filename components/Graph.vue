@@ -1,33 +1,39 @@
 <template lang="pug">
   v-app
     .graph
-      //- v-expansion-panels.my-10
-      //-       v-expansion-panel
-      //-         v-expansion-panel-header Show/Hide Nodes
-      //-         v-expansion-panel-content
-      //-           v-row.flex-row.flex-wrap.graph__node-toggles(
-      //-             justify="space-around"
-      //-             align="center"
-      //-           )
-      //-             //- v-col.col-12(
-      //-             v-col.col-12.col-xs-12.col-sm-12.col-md-4.col-lg-2(
-      //-               v-for="node in allNodes"
-      //-               :key="node.name"
-      //-             )
-      //-               v-switch(
-      //-                 :label="node.name"
-      //-                 v-model="node.active"
-      //-               )
-      d3-network(
-        v-if='showGraph'
-        :class="['graph__network', {active: showGraph}]"
-        :net-nodes='currentNodes'
-        :net-links='currentLinks'
-        :options='graphOptions'
+      v-expansion-panels.my-10(
+          inset
+          :class="{active: panelOpen}"
+        )
+        v-expansion-panel
+          v-expansion-panel-header(
+            @click="panelToggle"
+          ) Show/Hide Nodes
+          v-expansion-panel-content
+            v-row.flex-row.flex-wrap.graph__node-toggles(
+              justify="space-around"
+              align="center"
+            )
+              //- v-col.col-12(
+              v-col.col-12.col-xs-12.col-sm-12.col-md-4.col-lg-2(
+                v-for="node in allNodes"
+                :key="node.name"
+              )
+                v-switch(
+                  :label="node.name"
+                  v-model="node.active"
+                )
+      .graph__network-wrap(
+
       )
-      p(
-        v-else
-      ) Loading...
+        d3-network(
+          v-if='showGraph'
+          :class="['graph__network', {active: showGraph}]"
+          :net-nodes='currentNodes'
+          :net-links='currentLinks'
+          :options='graphOptions'
+          @node-click='handleNodeClick'
+        )
       
     
     Footer
@@ -56,7 +62,8 @@ export default {
       correlations: [],
       allLinks: [],
       allNodes: [],
-      nodesWithLinks: []
+      nodesWithLinks: [],
+      panelOpen: false
     }
   },
   async mounted() {
@@ -74,10 +81,18 @@ export default {
       )
     },
     currentLinks() {
-      return this.allLinks
+      // return this.allLinks
+      return this.allLinks.filter((link) => {
+        if (link.source && link.target) {
+          return link.source.active && link.target.active
+        } else {
+          return true
+        }
+      })
     },
     currentNodes() {
-      return this.allNodes
+      // return this.allNodes
+      return this.allNodes.filter((node) => node.active)
     },
     graphOptions() {
       // example had 3000
@@ -97,15 +112,20 @@ export default {
     }
   },
   methods: {
+    handleNodeClick(evt, node) {
+      console.log('clicked', node)
+    },
     buildLinks() {
-      const significanceLimit = 0.1
+      const significanceLimit = 0.2
       const maxStrokeWidth = 10
-
+      // lookup table reduces duplicate links  fed into graph component
       const linkTable = {}
+      const allLinks = []
 
       this.correlations.forEach((corr) => {
         linkTable[corr.name] = {}
         const corrData = Object.keys(corr.data)
+        let hasLoggedCorrName = false
 
         corrData.forEach((key) => {
           const tableHasKey =
@@ -113,19 +133,7 @@ export default {
             linkTable[key].hasOwnProperty(corr.name)
           const isSignificant = Math.abs(corr.data[key]) > significanceLimit
           const notNull = !!corr.data[key]
-
-
-
-
-
-
-          const notSameItem = key !== corr.name || true
-
-
-
-
-
-
+          const notSameItem = corr.name !== key
 
           if (notNull && notSameItem && isSignificant && !tableHasKey) {
             const color = corr.data[key] > 0 ? 'green' : 'red'
@@ -142,13 +150,21 @@ export default {
               }
             }
 
-            this.allLinks.push(link)
+            allLinks.push(link)
 
             linkTable[corr.name][key] = true
             this.nodesWithLinks.push(key)
           }
+
+          // ensure all useful nodes get rendered
+          if (!hasLoggedCorrName && notNull && notSameItem && isSignificant) {
+            this.nodesWithLinks.push(corr.name)
+            hasLoggedCorrName = true
+          }
         })
       })
+
+      this.allLinks = allLinks
     },
     buildNodes() {
       this.allNodes = Array.from(new Set(this.nodesWithLinks)).map((node) => {
@@ -158,6 +174,12 @@ export default {
           active: true
         }
       })
+    },
+    panelToggle() {
+      this.panelOpen = !this.panelOpen
+      // this was firing too early, but could be handy to keep data in sync with component state
+      // const activePanel = document.querySelector('.v-expansion-panel--active')
+      // this.panelOpen = !!activePanel
     },
     getSampleData() {
       //  parse correlations into an array of objects
@@ -190,10 +212,22 @@ export default {
     opacity: 0;
 
     &.active {
-      transition-delay: 10s;
-      transition: all ease 3s;
+      transition: all ease 10s;
       opacity: 1;
     }
+  }
+}
+
+.v-expansion-panels {
+  position: absolute;
+  top: 20px;
+  left: 0px;
+  z-index: 10;
+  transition: all ease 0.3s;
+
+  &:not(.active) {
+    left: 20px;
+    max-width: 400px;
   }
 }
 
