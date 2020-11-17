@@ -1,40 +1,112 @@
 <template lang="pug">
   v-app
     .graph
-      v-expansion-panels.my-10(
-          inset
-          :class="{active: panelOpen}"
-        )
+      v-expansion-panels.my-10
         v-expansion-panel
           v-expansion-panel-header(
             @click="panelToggle"
           ) Show/Hide Nodes
           v-expansion-panel-content
+            v-row.flex-row.graph__node-toggle-buttons()
+              v-btn(
+                @click='showAllNodes'
+                :disabled='allNodes.length === currentNodes.length'
+                depressed
+                :color="accentColor"
+              ) Show All
+              v-btn(
+                @click='hideAllNodes'
+                :disabled='!currentNodes.length'
+                depressed        
+                :color="accentColor"
+              ) Hide All
             v-row.flex-row.flex-wrap.graph__node-toggles(
               justify="space-around"
               align="center"
             )
-              //- v-col.col-12(
-              v-col.col-12.col-xs-12.col-sm-12.col-md-4.col-lg-2(
+              v-col(
                 v-for="node in allNodes"
                 :key="node.name"
               )
                 v-switch(
                   :label="node.name"
                   v-model="node.active"
+                  :color="accentColor"
+                  inset
                 )
-      .graph__network-wrap(
-
+        //- Options
+        v-expansion-panel
+          v-expansion-panel-header Options
+          v-expansion-panel-content.graph__options
+            v-row.flex-row.flex-wrap(
+              justify="space-around"
+              align="center"
+            )
+              v-col.col-12
+                .graph__options__slider-label
+                  p Connection Threshold
+                  div
+                    p Weak
+                    p Strong
+                v-slider(
+                  v-model="minSignificance"
+                  :color="accentColor"
+                  :track-color="accentColorDark"
+                  max="90"
+                  ticks
+                )
+            v-divider
+            v-row.flex-row.flex-wrap.graph__options__direction(
+              justify="space-around"
+              align="center"
+            )
+              v-col.col-12
+                .graph__options__direction__label
+                  p Filter Connections
+                  v-switch(
+                    label="Positive"
+                    v-model="showPositiveLinks"
+                    :color="accentColor"
+                    inset
+                  )
+                  v-switch(
+                    label="Negative"
+                    v-model="showNegativeLinks"
+                    :color="accentColor"
+                    inset
+                  )
+            v-divider
+            v-row.flex-row.flex-wrap.graph__options__node-picker(
+              justify="space-around"
+              align="center"
+            )
+              v-col.col-12
+                .graph__options__direction__label
+                  p Node Picker Mode
+                  p When selected, clicking a node will hide all other connections
+                  v-switch(
+                    label=""
+                    v-model="nodePickerActive"
+                    :color="accentColor"
+                    inset
+                  )
+      d3-network(
+        v-if='showGraph'
+        :class="['graph__network', {active: showGraph}]"
+        :net-nodes='currentNodes'
+        :net-links='currentLinks'
+        :options='graphOptions'
+        @node-click='handleNodeClick'
       )
-        d3-network(
-          v-if='showGraph'
-          :class="['graph__network', {active: showGraph}]"
-          :net-nodes='currentNodes'
-          :net-links='currentLinks'
-          :options='graphOptions'
-          @node-click='handleNodeClick'
-        )
-      
+      v-progress-circular(
+        v-else
+        :value="0"
+        size="100"
+        class="ml-2"
+        :indeterminate="true"
+        :color="accentColor"
+        class='graph__loader'
+      )
     
     Footer
 
@@ -44,6 +116,7 @@
 import Vuetify from 'vuetify'
 import axios from 'axios'
 import D3Network from 'vue-d3-network'
+import { mapState } from 'vuex'
 
 const rawCorrelations = require('../backend/output/correlations.json')
 
@@ -63,7 +136,14 @@ export default {
       allLinks: [],
       allNodes: [],
       nodesWithLinks: [],
-      panelOpen: false
+      panelOpen: false,
+      minSignificance: 10,
+      accentColor: 'red darken-3',
+      accentColorDark: 'red darken-10',
+      showPositiveLinks: true,
+      showNegativeLinks: true,
+      nodePickerActive: false,
+      pickedNode: ''
     }
   },
   async mounted() {
@@ -82,9 +162,18 @@ export default {
     },
     currentLinks() {
       // return this.allLinks
+      const sigLimit = this.minSignificance / 100
       return this.allLinks.filter((link) => {
         if (link.source && link.target) {
-          return link.source.active && link.target.active
+          const nodesActive = link.source.active && link.target.active
+          const isSignificant = link.absoluteSignificance >= sigLimit
+          const matchesDirection =
+            (this.showPositiveLinks && link.significance > 0) ||
+            (this.showNegativeLinks && link.significance < 0)
+          // if picker mode active, check if link should be shown
+          const hasBeenPicked = !this.nodePickerActive || this.isPicked(link)
+
+          return nodesActive && isSignificant && matchesDirection && hasBeenPicked
         } else {
           return true
         }
@@ -112,11 +201,26 @@ export default {
     }
   },
   methods: {
+    isPicked(link) {
+      if (!this.pickedNode.length) return true
+      return link.tid === this.pickedNode || link.sid === this.pickedNode
+    },
+    showAllNodes() {
+      this.allNodes.forEach((node) => {
+        node.active = true
+      })
+    },
+    hideAllNodes() {
+      this.allNodes.forEach((node) => {
+        node.active = false
+      })
+    },
     handleNodeClick(evt, node) {
-      console.log('clicked', node)
+      if (!this.nodePickerActive) return
+      this.pickedNode = node.id
     },
     buildLinks() {
-      const significanceLimit = 0.2
+      const significanceLimit = 0.1
       const maxStrokeWidth = 10
       // lookup table reduces duplicate links  fed into graph component
       const linkTable = {}
@@ -131,22 +235,25 @@ export default {
           const tableHasKey =
             linkTable.hasOwnProperty(key) &&
             linkTable[key].hasOwnProperty(corr.name)
-          const isSignificant = Math.abs(corr.data[key]) > significanceLimit
-          const notNull = !!corr.data[key]
+
+          const hasData = !!corr.data[key]
           const notSameItem = corr.name !== key
 
-          if (notNull && notSameItem && isSignificant && !tableHasKey) {
+          if (hasData && notSameItem && !tableHasKey) {
             const color = corr.data[key] > 0 ? 'green' : 'red'
-            const strokeWidth = Math.abs(corr.data[key]) * maxStrokeWidth
-            const opacity = Math.abs(corr.data[key])
+            const significance = corr.data[key]
+            const absoluteSignificance = Math.abs(corr.data[key])
+            const strokeWidth = significance * maxStrokeWidth
 
             const link = {
               _color: color,
               sid: corr.name,
               tid: key,
+              significance,
+              absoluteSignificance,
               _svgAttrs: {
                 'stroke-width': strokeWidth,
-                opacity
+                opacity: absoluteSignificance
               }
             }
 
@@ -157,7 +264,7 @@ export default {
           }
 
           // ensure all useful nodes get rendered
-          if (!hasLoggedCorrName && notNull && notSameItem && isSignificant) {
+          if (!hasLoggedCorrName && hasData && notSameItem) {
             this.nodesWithLinks.push(corr.name)
             hasLoggedCorrName = true
           }
@@ -190,6 +297,7 @@ export default {
           data: rawCorrelations[key]
         }
       })
+      this.$store.commit('setCorrelationData', this.correlations)
     }
   }
 }
@@ -216,19 +324,42 @@ export default {
       opacity: 1;
     }
   }
+
+  &__loader {
+    position: fixed;
+    top: calc(50% - 50px);
+    left: calc(50% - 50px);
+  }
+
+  &__options {
+    &__slider-label {
+      font-size: 0.9rem;
+
+      div {
+        font-size: 0.7rem;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 5px;
+      }
+    }
+  }
+
+  &__node-toggles {
+  }
 }
 
 .v-expansion-panels {
   position: absolute;
   top: 20px;
-  left: 0px;
+  left: 20px;
   z-index: 10;
   transition: all ease 0.3s;
+  max-width: 400px;
+}
 
-  &:not(.active) {
-    left: 20px;
-    max-width: 400px;
-  }
+.v-expansion-panel-content {
+  max-height: 75vh;
+  overflow-y: auto;
 }
 
 .container {
