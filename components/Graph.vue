@@ -2,42 +2,11 @@
   v-app
     .graph
       v-expansion-panels.my-10
-        v-expansion-panel
-          v-expansion-panel-header(
-            @click="panelToggle"
-          ) Show/Hide Nodes
-          v-expansion-panel-content
-            v-row.flex-row.graph__node-toggle-buttons()
-              v-btn(
-                @click='showAllNodes'
-                :disabled='allNodes.length === currentNodes.length'
-                depressed
-                :color="accentColor"
-              ) Show All
-              v-btn(
-                @click='hideAllNodes'
-                :disabled='!currentNodes.length'
-                depressed        
-                :color="accentColor"
-              ) Hide All
-            v-row.flex-row.flex-wrap.graph__node-toggles(
-              justify="space-around"
-              align="center"
-            )
-              v-col(
-                v-for="node in allNodes"
-                :key="node.name"
-              )
-                v-switch(
-                  :label="node.name"
-                  v-model="node.active"
-                  :color="accentColor"
-                  inset
-                )
         //- Options
         v-expansion-panel
-          v-expansion-panel-header Options
+          v-expansion-panel-header Connection Options
           v-expansion-panel-content.graph__options
+            v-divider
             v-row.flex-row.flex-wrap(
               justify="space-around"
               align="center"
@@ -76,23 +45,66 @@
                     inset
                   )
             v-divider
-            v-row.flex-row.flex-wrap.graph__options__node-picker(
+            v-row.flex-row.flex-wrap.graph__options__picker(
               justify="space-around"
               align="center"
             )
               v-col.col-12
-                .graph__options__direction__label
+                .graph__options__picker__label
                   p Node Picker Mode
                   p When selected, clicking a node will hide all other connections
-                  v-switch(
-                    label=""
-                    v-model="nodePickerActive"
-                    :color="accentColor"
-                    inset
-                  )
+                v-switch(
+                  label=""
+                  v-model="nodePickerActive"
+                  :color="accentColor"
+                  inset
+                )
+                .graph__options__picker__list(
+                  v-if="pickedNodes.length"
+                )
+                  v-chip.ma-1(
+                    v-for='node in pickedNodes'
+                    :key='node'
+                    @click="removePickedNode(node)"
+                    close
+                    outlined
+                  ) {{ node }}
+        v-expansion-panel
+          v-expansion-panel-header(
+            @click="panelToggle"
+          ) Node options
+          v-expansion-panel-content
+            v-divider
+            v-row.flex-row.graph__node-toggle-buttons.py-5
+              v-btn(
+                @click='showAllNodes'
+                :disabled='allNodes.length === currentNodes.length'
+                depressed
+                :color="accentColor"
+              ) Show All
+              v-btn(
+                @click='hideAllNodes'
+                :disabled='!currentNodes.length'
+                depressed        
+                :color="accentColor"
+              ) Hide All
+            v-row.flex-row.flex-wrap.graph__node-toggles(
+              justify="space-around"
+              align="center"
+            )
+              v-col(
+                v-for="node in allNodes"
+                :key="node.name"
+              )
+                v-switch(
+                  :label="node.name"
+                  v-model="node.active"
+                  :color="accentColor"
+                  inset
+                )
       d3-network(
         v-if='showGraph'
-        :class="['graph__network', {active: showGraph}]"
+        :class="['graph__network', {active: showGraph},  {'picker-mode': nodePickerActive}]"
         :net-nodes='currentNodes'
         :net-links='currentLinks'
         :options='graphOptions'
@@ -140,10 +152,11 @@ export default {
       minSignificance: 10,
       accentColor: 'red darken-3',
       accentColorDark: 'red darken-10',
+      accentColorLite: 'red lighten-4',
       showPositiveLinks: true,
       showNegativeLinks: true,
       nodePickerActive: false,
-      pickedNode: ''
+      pickedNodes: []
     }
   },
   async mounted() {
@@ -173,7 +186,9 @@ export default {
           // if picker mode active, check if link should be shown
           const hasBeenPicked = !this.nodePickerActive || this.isPicked(link)
 
-          return nodesActive && isSignificant && matchesDirection && hasBeenPicked
+          return (
+            nodesActive && isSignificant && matchesDirection && hasBeenPicked
+          )
         } else {
           return true
         }
@@ -201,9 +216,15 @@ export default {
     }
   },
   methods: {
+    removePickedNode(node) {
+      this.pickedNodes.splice(this.pickedNodes.indexOf(node), 1)
+    },
     isPicked(link) {
-      if (!this.pickedNode.length) return true
-      return link.tid === this.pickedNode || link.sid === this.pickedNode
+      if (!this.pickedNodes.length) return false
+      return (
+        this.pickedNodes.includes(link.tid) ||
+        this.pickedNodes.includes(link.sid)
+      )
     },
     showAllNodes() {
       this.allNodes.forEach((node) => {
@@ -217,7 +238,11 @@ export default {
     },
     handleNodeClick(evt, node) {
       if (!this.nodePickerActive) return
-      this.pickedNode = node.id
+      if (this.pickedNodes.includes(node.id)) {
+        this.removePickedNode(node.id)
+      } else {
+        this.pickedNodes.push(node.id)
+      }
     },
     buildLinks() {
       const significanceLimit = 0.1
@@ -299,11 +324,16 @@ export default {
       })
       this.$store.commit('setCorrelationData', this.correlations)
     }
+  },
+  watch: {
+    nodePickerActive: function(newVal, oldVal) {
+      if (!newVal) this.pickedNodes = []
+    }
   }
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .v-application {
   width: 100%;
 
@@ -322,6 +352,12 @@ export default {
     &.active {
       transition: all ease 10s;
       opacity: 1;
+    }
+
+    &.picker-mode {
+      .node {
+        cursor: pointer;
+      }
     }
   }
 
@@ -344,22 +380,24 @@ export default {
     }
   }
 
-  &__node-toggles {
+  &__node-toggle-buttons {
+    display: flex;
+    justify-content: space-around;
   }
-}
 
-.v-expansion-panels {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  z-index: 10;
-  transition: all ease 0.3s;
-  max-width: 400px;
-}
+  .v-expansion-panels {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    transition: all ease 0.3s;
+    max-width: 400px;
+  }
 
-.v-expansion-panel-content {
-  max-height: 75vh;
-  overflow-y: auto;
+  .v-expansion-panel-content {
+    max-height: 75vh;
+    overflow-y: auto;
+  }
 }
 
 .container {
