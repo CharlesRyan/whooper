@@ -6,12 +6,23 @@ from modules.sheet_module import sheet_module
 
 class Main:
 
-  def __init__(self, sheet=True, whoop=True):
-    self.CRED_PATH = 'backend/creds.ini'
-    if whoop: self.whoop_df = self.get_whoop_data()
-    if sheet: self.sheet_df = self.get_sheet_data()
+  def __init__(self, event):
+    ########## dev
+    # self.CRED_PATH = 'backend/creds.ini'
+    # self.whoop_df = self.__get_whoop_data()
+    # self.sheet_df = self.get_sheet_data()
+    ########## dev
 
-  def get_whoop_data(self):
+    parsedEvent = json.loads(event)
+
+    if parsedEvent['requestContext']['http']['method'] != 'POST' or parsedEvent['body'] is None or len(parsedEvent['body']) == 0:
+      raise ValueError
+    else:
+      self.sheet_data = json.loads(parsedEvent['body'])
+      self.__parse_sheet_data()
+
+
+  def __get_whoop_data(self):
     whoop = whoop_module()
     refetch = False
     # refetch = True
@@ -21,15 +32,15 @@ class Main:
     # return whoop.get_all_data(refetch)
 
 
-  def get_sheet_data(self):
-    # transform sheet date to whoop format so the datasets can be joined based on date
-    # whoop date format: 2020-06-04
+  def __parse_sheet_data(self):
 
-    with open('backend/sample_data/gsheet.json') as f:
-      sample_sheet_data = json.load(f)
+    ############# dev
+    # with open('backend/sample_data/gsheet.json') as f:
+    #   self.raw_data = json.load(f)
+    ############# dev
 
     sheet = sheet_module()
-    return sheet.parse_data(sample_sheet_data)
+    self.sheet_df = sheet.parse_data(self.sheet_data)
 
 
   def analyze(self):
@@ -38,16 +49,24 @@ class Main:
     # pd.set_option("display.max_rows", None)
     # 
 
-    # mish sheet data and whoop_data together based on matching the day column
-    all_data = pd.merge(self.whoop_df, self.sheet_df, on='day')
+    if hasattr(self, 'whoop_df') and self.whoop_df is not None:
+      # mish sheet data and whoop_data together based on matching the day column
+      all_data = pd.merge(self.whoop_df, self.sheet_df, on='day')
+    else:
+      all_data = self.sheet_df
 
-    all_data.to_csv('backend/output/merged_data.csv', index=False)
-    print('Output sent to csv')
+    # all_data.to_csv('backend/output/merged_data.csv', index=False)
+    # print('Output sent to csv')
+
+    # alphabetically sort columns
+    all_data.sort_index(axis=1, inplace=True)
 
     correlations = all_data.corr()
 
-    correlations.to_json('backend/output/correlations.json')
-    print('Corr output sent to json')
+    # correlations.to_json('backend/output/correlations.json')
+    # print('Corr output sent to json')
+    # correlations.to_csv('backend/output/correlations.csv')
+    # print('Corr output sent to csv')
 
     # print(self.whoop_df)
     # print(all_data.head())
@@ -55,27 +74,48 @@ class Main:
     # print(all_data.corr())
     # print(all_data.dtypes)
 
+    return correlations.to_json()
 
+
+############# dev
   def sheet_output(self):
     pd.set_option("display.max_rows", None, "display.max_columns", None)
     print('----------------------')
     print(self.sheet_df)
     # print(self.sheet_df.corr())
     # print(self.sheet_df.dtypes)
+############# dev
 
 ############# dev
 # whoop = False
-whoop = True
-sheet = True
+# whoop = True
+# sheet = True
 
-main = Main()
-if whoop and sheet: main.analyze()
-if sheet and not whoop: main.sheet_output()
+# main = Main()
+# if whoop and sheet: main.analyze()
+# if sheet and not whoop: main.sheet_output()
 ############# dev
 
 def lambda_handler(event, context):
-  main = Main(event)
+  try:
+    main = Main(event)
+  except:
+    return {
+          'statusCode': 422,
+          'body': json.dumps('Invalid request')
+      }
+
+  analysis = main.analyze()
+
   return {
         'statusCode': 200,
-        'body': json.dumps('responseObj')
+        'body': json.dumps(analysis)
     }
+
+############# dev
+with open("backend/sample_data/test_event.json", 'r') as content:
+  test_event = content.read()
+
+rtnVal = lambda_handler(test_event, None)
+print(rtnVal)
+############# dev

@@ -1,5 +1,6 @@
 import json
 import pandas as pd
+import numpy as np
 
 
 class sheet_module:
@@ -36,6 +37,9 @@ class sheet_module:
       # convert integers and booleans contained in strings
       gsheet_df[col] = gsheet_df[col].map(self.convert_items)
 
+      # replace empty values with the column average
+      gsheet_df.update(gsheet_df[col].fillna(value=gsheet_df[col].mean(), inplace=True))
+
       # insert previous day's activities
       new_col_name = col + ' (prev day)'
       gsheet_df[new_col_name] = gsheet_df[col].copy().shift(1)
@@ -43,11 +47,11 @@ class sheet_module:
     return gsheet_df
 
   def convert_items(self, item):
-    if item is None: return 0
+    if item is None or item == '': return np.NaN
 
     if self.is_number(item):
       return float(item)
-    elif item == 'TRUE':
+    elif item == 'TRUE' or item == 'true' or item == 'yes':
       return 1
     else:
       return 0
