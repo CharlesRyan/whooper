@@ -1,7 +1,7 @@
 <template lang="pug">
   .whooper
-    Graph
-    //- InputTable
+    //- Graph
+    InputTable
     DataTable(
       v-if="showDataTable"
       :userData="userData"
@@ -13,8 +13,6 @@
 </template>
 
 <script>
-import Vuetify from 'vuetify'
-
 import DataTable from '../components/DataTable'
 import InputTable from '../components/InputTable'
 import WhoopLogin from '../components/WhoopLogin'
@@ -29,7 +27,6 @@ export default {
     Chart,
     Graph
   },
-  vuetify: new Vuetify(),
   data() {
     return {
       username: '',
@@ -41,19 +38,17 @@ export default {
       showWhoopLogin: false
     }
   },
-  mounted() {
-  },
-  computed: {
-  },
+  mounted() {},
+  computed: {},
   methods: {
-    setData(data){
+    setData(data) {
       this.userData = data
     }
   }
 }
 </script>
 
-<style lang='scss'>
+<style lang="scss">
 .whooper {
   margin: 0 auto;
   // min-height: 100vh;
@@ -64,9 +59,10 @@ export default {
   align-items: center;
   text-align: center;
 }
+.theme--light, .theme--dark {
+  &.v-application {
+    // background-color: $bg;
+  }
 
-.teal-bg {
-  background-color: #708a8c;
 }
-
 </style>

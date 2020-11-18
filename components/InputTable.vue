@@ -5,15 +5,15 @@
         type='text'
         @paste='onPaste'
       )
-      v-data-table.elevation-1(:headers='headers' :items='tableRows' sort-by='calories')
+      v-data-table.elevation-1(:headers='headers' :items='tableRows' :loading='loading')
         template(v-slot:top)
           v-toolbar(flat)
-            v-toolbar-title My CRUD
+            v-toolbar-title Data Input
             v-divider.mx-4(inset vertical)
             v-spacer
             v-dialog(v-model='dialog' max-width='500px')
               template(v-slot:activator='{ on, attrs }')
-                v-btn.mb-2(color='primary' dark v-bind='attrs' v-on='on') New Row
+                v-btn.mb-2(color='primary' v-bind='attrs' v-on='on') New Row
               v-card
                 v-card-title
                   span.headline {{ formTitle }}
@@ -21,7 +21,8 @@
                   v-container
                     v-row
                       v-col(cols='12' sm='6' md='4' v-for="key in Object.keys(editedItem)" :key='key')
-                        v-text-field(v-model='editedItem[key]' :label='key | capitalize')
+                        v-checkbox(v-if="isBool(editedItem[key])" v-model='editedItem[key]' :label='key | capitalize')
+                        v-text-field(v-else v-model='editedItem[key]' :label='key | capitalize')
                 v-card-actions
                   v-spacer
                   v-btn(color='blue darken-1' text='' @click='close') Cancel
@@ -39,15 +40,17 @@
           v-icon(small='' @click='deleteItem(item)') mdi-delete
         template(v-slot:no-data)
           v-btn(color='primary' @click='initialize') Reset
+      v-btn(color='primary' @click='analyze') Run Analysis
+        
     
     Footer
 
 </template>
 
 <script>
-import Vuetify from 'vuetify'
 import axios from 'axios'
 
+import sampleTableData from '../assets/js/sampleTableData'
 import Footer from './Footer'
 
 export default {
@@ -55,14 +58,13 @@ export default {
   components: {
     Footer
   },
-  vuetify: new Vuetify(),
   props: {
     userData: Array
   },
   data() {
     return {
       singleSelect: false,
-      loading: false,
+      loading: true,
       selected: [],
       rawHeaders: [],
       inputHeaders: [],
@@ -78,7 +80,7 @@ export default {
   mounted() {
     this.initialize()
     this.loading = false
-    this.hitAPI()
+    // this.hitAPI()
   },
   computed: {
     formTitle() {
@@ -95,11 +97,20 @@ export default {
 
       headerItems.push({ text: 'Actions', value: 'actions', sortable: false })
       return headerItems
+    },
+    formattedData() {
+      const headers = Object.keys(this.tableRows[0])
+      const values = this.tableRows.map((row) => Object.values(row))
+      return [headers, ...values]
     }
   },
   methods: {
-   async hitAPI(){
-      const url = 'https://mjlck5n8ke.execute-api.us-west-1.amazonaws.com/whooper'
+    isBool(item) {
+      return typeof item === 'boolean'
+    },
+    async hitAPI() {
+      const url =
+        'https://mjlck5n8ke.execute-api.us-west-1.amazonaws.com/whooper'
       try {
         const response = await axios.get(url)
         console.log('response', response)
@@ -107,25 +118,20 @@ export default {
         console.log('data error', e)
       }
     },
+    analyze() {},
     onPaste(e) {
       this.loading = true
-      console.log(e)
       if (!e.clipboardData || !e.clipboardData.items) return
-      const items = e.clipboardData.items
-      let data
-      for (let i = 0; i < items.length; i++) {
-        if (items[i].type == 'text/plain') {
-          data = items[i]
-          break
-        }
-      }
+      const { items } = e.clipboardData
+      const data = Array.from(items).find((itm) => itm.type === 'text/plain')
       if (!data) return
+
       data.getAsString((text) => {
         text = text.replace(/\r/g, '').trim('\n')
         const rowsOfText = text.split('\n')
         let header = []
         const rows = []
-        console.log(rowsOfText)
+
         rowsOfText.forEach((rowAsText) => {
           // Remove wrapping double quotes
           const row = rowAsText.split('\t').map((colAsText) => {
@@ -142,6 +148,7 @@ export default {
           }
         })
         this.buildTableRows(header, rows)
+        this.loading = true
       })
     },
     buildTableRows(header, rows) {
@@ -151,84 +158,19 @@ export default {
         header.forEach((headItm, headIdx) => {
           rowObj[headItm] = row[headIdx]
         })
+
+        Object.keys(rowObj).forEach((key) => {
+          if (rowObj[key] === 'TRUE') rowObj[key] = true
+          if (rowObj[key] === 'FALSE') rowObj[key] = false
+        })
+
         return rowObj
       })
 
       this.tableRows = newRows
     },
     initialize() {
-      this.tableRows = [
-        {
-          name: 'Frozen Yogurt',
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0
-        },
-        {
-          name: 'Ice cream sandwich',
-          calories: 237,
-          fat: 9.0,
-          carbs: 37,
-          protein: 4.3
-        },
-        {
-          name: 'Eclair',
-          calories: 262,
-          fat: 16.0,
-          carbs: 23,
-          protein: 6.0
-        },
-        {
-          name: 'Cupcake',
-          calories: 305,
-          fat: 3.7,
-          carbs: 67,
-          protein: 4.3
-        },
-        {
-          name: 'Gingerbread',
-          calories: 356,
-          fat: 16.0,
-          carbs: 49,
-          protein: 3.9
-        },
-        {
-          name: 'Jelly bean',
-          calories: 375,
-          fat: 0.0,
-          carbs: 94,
-          protein: 0.0
-        },
-        {
-          name: 'Lollipop',
-          calories: 392,
-          fat: 0.2,
-          carbs: 98,
-          protein: 0
-        },
-        {
-          name: 'Honeycomb',
-          calories: 408,
-          fat: 3.2,
-          carbs: 87,
-          protein: 6.5
-        },
-        {
-          name: 'Donut',
-          calories: 452,
-          fat: 25.0,
-          carbs: 51,
-          protein: 4.9
-        },
-        {
-          name: 'KitKat',
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7
-        }
-      ]
+      this.tableRows = sampleTableData
       this.setEditedItem({})
     },
 

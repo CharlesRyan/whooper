@@ -35,7 +35,6 @@
 </template>
 
 <script>
-import Vuetify from 'vuetify'
 
 import Footer from './Footer'
 
@@ -44,7 +43,6 @@ export default {
   components: {
     Footer
   },
-  vuetify: new Vuetify(),
   props: {
     userData: Array
   },

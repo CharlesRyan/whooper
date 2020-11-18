@@ -125,7 +125,6 @@
 </template>
 
 <script>
-import Vuetify from 'vuetify'
 import axios from 'axios'
 import D3Network from 'vue-d3-network'
 import { mapState } from 'vuex'
@@ -140,7 +139,6 @@ export default {
     Footer,
     D3Network
   },
-  vuetify: new Vuetify(),
   props: {},
   data() {
     return {

@@ -13,7 +13,7 @@
 import * as d3 from 'd3'
 import * as c3 from 'c3'
 
-import userData from '../assets/staticData'
+import userData from '../assets/js/staticData'
 
 export default {
   components: {},

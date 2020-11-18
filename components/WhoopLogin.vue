@@ -47,18 +47,16 @@
 </template>
 
 <script>
-import Vuetify from 'vuetify'
 import axios from 'axios'
 
 import Footer from './Footer'
 
-import sampleData from '../assets/staticData'
+import sampleData from '../assets/js/staticData'
 
 export default {
   components: {
     Footer
   },
-  vuetify: new Vuetify(),
   data() {
     return {
       username: '',

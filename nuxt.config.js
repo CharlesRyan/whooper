@@ -27,19 +27,18 @@ export default {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: [],
+  plugins: ['~plugins/vuetify'],
   /*
    ** Nuxt.js dev-modules
    */
   buildModules: [
-    '@nuxtjs/vuetify'
     // '@nuxtjs/eslint-module',
     // '@nuxtjs/stylelint-module'
   ],
   /*
    ** Nuxt.js modules
    */
-  modules: [],
+  modules: ['@nuxtjs/vuetify', '@nuxtjs/style-resources'],
   /*
    ** Build configuration
    */
@@ -48,5 +47,20 @@ export default {
      ** You can extend webpack config here
      */
     extend(config, ctx) {}
+  },
+  styleResources: {
+    scss: ['~/assets/scss/variables.scss']
+  },
+  vuetify: {
+    theme: {
+      dark: true,
+      themes: {
+        light: {
+          primary: '#2A9D8F',
+          secondary: '#E9C46A',
+          accent: '#F4A261'
+        }
+      }
+    }
   }
 }
