@@ -1,4 +1,5 @@
 export default {
+  // mode: 'ssr',
   mode: 'spa',
   /*
    ** Headers of the page
@@ -27,7 +28,7 @@ export default {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: ['~plugins/vuetify'],
+  plugins: [{src: '~plugins/vuetify', ssr: true}],
   /*
    ** Nuxt.js dev-modules
    */
@@ -43,9 +44,7 @@ export default {
    ** Build configuration
    */
   build: {
-    /*
-     ** You can extend webpack config here
-     */
+    transpile: ['@nuxtjs/vuetify', '@nuxtjs/style-resources'],
     extend(config, ctx) {}
   },
   styleResources: {

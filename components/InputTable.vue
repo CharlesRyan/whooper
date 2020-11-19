@@ -1,10 +1,20 @@
 <template lang="pug">
   v-app
     .input-table
-      input.main-input(
-        type='text'
-        @paste='onPaste'
-      )
+      .input-table__input-wrap
+        .input-table__instructions
+          p Simply copy and paste values from a spreadsheet/csv file
+          p OR
+          p Upload the file itself
+        .input-table__inputs
+          input.text-input(
+            type='text'
+            @paste='onPaste'
+          )
+          input.file-input(
+            type='file'
+            @change="selectedFile"
+          )
       v-data-table.elevation-1(:headers='headers' :items='tableRows' :loading='loading')
         template(v-slot:top)
           v-toolbar(flat)
@@ -42,6 +52,33 @@
           v-btn(color='primary' @click='initialize') Reset
       v-btn(color='primary' @click='analyze') Run Analysis
         
+    v-snackbar(
+      v-model="colSnackbar"
+      timeout="-1"
+      :class="{'stacked-snack': rowSnackbar}"
+    ) Columns are limited to a maximum of {{ dataLimit }}
+      template(
+        v-slot:action="{ attrs }"
+      )
+        v-btn(
+          color="primary"
+          text
+          v-bind="attrs"
+          @click="colSnackbar = false"
+        ) Close
+    v-snackbar(
+      v-model="rowSnackbar"
+      timeout="-1"
+    ) Rows are limited to a maximum of {{ dataLimit }}
+      template(
+        v-slot:action="{ attrs }"
+      )
+        v-btn(
+          color="primary"
+          text
+          v-bind="attrs"
+          @click="rowSnackbar = false"
+        ) Close
     
     Footer
 
@@ -49,6 +86,7 @@
 
 <script>
 import axios from 'axios'
+import Papa from 'papaparse'
 
 import sampleTableData from '../assets/js/sampleTableData'
 import Footer from './Footer'
@@ -69,18 +107,19 @@ export default {
       rawHeaders: [],
       inputHeaders: [],
       inputRows: [],
-      // sample data
       dialog: false,
       dialogDelete: false,
       tableRows: [],
       editedIndex: -1,
-      editedItem: {}
+      editedItem: {},
+      dataLimit: 100,
+      colSnackbar: false,
+      rowSnackbar: false
     }
   },
   mounted() {
     this.initialize()
     this.loading = false
-    // this.hitAPI()
   },
   computed: {
     formTitle() {
@@ -119,40 +158,48 @@ export default {
       }
     },
     analyze() {},
+    selectedFile(e) {
+      this.loading = true
+      let file = e.target.files[0]
+      if (!file) return
+
+      let reader = new FileReader()
+      reader.readAsText(file, 'UTF-8')
+      reader.onload = (evt) => {
+        this.parseInput(evt.target.result)
+      }
+      reader.onerror = (evt) => {
+        console.error(evt)
+      }
+    },
     onPaste(e) {
       this.loading = true
       if (!e.clipboardData || !e.clipboardData.items) return
       const { items } = e.clipboardData
       const data = Array.from(items).find((itm) => itm.type === 'text/plain')
       if (!data) return
+      data.getAsString(this.parseInput)
 
-      data.getAsString((text) => {
-        text = text.replace(/\r/g, '').trim('\n')
-        const rowsOfText = text.split('\n')
-        let header = []
-        const rows = []
-
-        rowsOfText.forEach((rowAsText) => {
-          // Remove wrapping double quotes
-          const row = rowAsText.split('\t').map((colAsText) => {
-            return colAsText.trim().replace(/^"(.*)"$/, '$1')
-          })
-          // The first row containing data is assumed to be the header
-          if (header.length == 0) {
-            // Remove empty columns
-            while (row.length && !row[row.length - 1].trim()) row.pop()
-            if (row.length == 0) return
-            header = row
-          } else {
-            rows.push(row.slice(0, header.length))
-          }
-        })
-        this.buildTableRows(header, rows)
-        this.loading = true
-      })
+      // const {header, rows} = this.parseTSVInput(data)
+    },
+    parseInput(input) {
+      const results = Papa.parse(input)
+      console.log(results)
+      this.buildTableRows(results.data[0], results.data.slice(1))
     },
     buildTableRows(header, rows) {
-      // TODO: refactor for efficiency
+      // size limiting
+      if (header.length > this.dataLimit) {
+        header = header.slice(0, this.dataLimit)
+        rows = rows.map((row) => row.slice(0, this.dataLimit))
+        this.colSnackbar = true
+      }
+
+      if (rows.length > this.dataLimit) {
+        rows = rows.slice(0, this.dataLimit)
+        this.rowSnackbar = true
+      }
+
       const newRows = rows.map((row, rowIdx) => {
         const rowObj = {}
         header.forEach((headItm, headIdx) => {
@@ -168,6 +215,7 @@ export default {
       })
 
       this.tableRows = newRows
+      this.loading = false
     },
     initialize() {
       this.tableRows = sampleTableData
@@ -276,10 +324,43 @@ export default {
 }
 
 .input-table {
+  max-width: 95vw;
+  overflow-x: scroll;
+
+  .v-data-table__wrapper {
+    overflow-x: scroll;
+  }
+
+  &__instructions,
+  &__inputs {
+    display: flex;
+    align-items: center;
+  }
+
+  &__inputs {
+    justify-content: space-between;
+  }
+  
+  &__instructions {
+    justify-content: space-around;
+    p {
+      max-width: 240px;
+      width: 33%;
+    }
+  }
 }
 
-.main-input {
-  border: 1px solid black;
+.v-snack {
+  top: -50px;
+
+  &.stacked-snack {
+    top: -100px;
+    bottom: auto;
+  }
+}
+
+.text-input {
+  border: 1px solid white;
   margin: 20px;
 }
 </style>

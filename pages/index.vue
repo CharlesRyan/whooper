@@ -59,10 +59,11 @@ export default {
   align-items: center;
   text-align: center;
 }
-.theme--light, .theme--dark {
+
+.theme--light,
+.theme--dark {
   &.v-application {
     // background-color: $bg;
   }
-
 }
 </style>
