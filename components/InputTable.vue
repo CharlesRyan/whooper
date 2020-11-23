@@ -112,7 +112,7 @@ export default {
       tableRows: [],
       editedIndex: -1,
       editedItem: {},
-      dataLimit: 100,
+      dataLimit: 10000,
       colSnackbar: false,
       rowSnackbar: false
     }
@@ -184,7 +184,6 @@ export default {
     },
     parseInput(input) {
       const results = Papa.parse(input)
-      console.log(results)
       this.buildTableRows(results.data[0], results.data.slice(1))
     },
     buildTableRows(header, rows) {

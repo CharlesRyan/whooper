@@ -30,6 +30,9 @@ class sheet_module:
 
     gsheet_df = pd.DataFrame(gsheet_data_rows, columns=gsheet_data_headers)
 
+    print(gsheet_df)
+    # print(gsheet_df.dtypes)
+
     for col in list(gsheet_df):
       if col == 'day':
         continue

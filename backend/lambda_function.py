@@ -13,8 +13,14 @@ class Main:
     # self.sheet_df = self.get_sheet_data()
     ########## dev
 
-    parsedEvent = json.loads(event)
 
+    # only for passing in data directly, local use
+    # self.sheet_data = event
+    # self.__parse_sheet_data()
+    #######
+
+    ## api use
+    parsedEvent = json.loads(event)
     if parsedEvent['requestContext']['http']['method'] != 'POST' or parsedEvent['body'] is None or len(parsedEvent['body']) == 0:
       raise ValueError
     else:
@@ -88,10 +94,14 @@ class Main:
 
 ############# dev
 # whoop = False
-# whoop = True
-# sheet = True
+whoop = True
+sheet = True
 
-# main = Main()
+# passing data in directly
+# with open('backend/sample_data/gsheet.json') as f:
+#   raw_data = json.load(f)
+
+# main = Main(raw_data)
 # if whoop and sheet: main.analyze()
 # if sheet and not whoop: main.sheet_output()
 ############# dev
@@ -113,9 +123,10 @@ def lambda_handler(event, context):
     }
 
 ############# dev
-with open("backend/sample_data/test_event.json", 'r') as content:
-  test_event = content.read()
+# api mimicing
+# with open("backend/sample_data/test_event.json", 'r') as content:
+#   test_event = content.read()
 
-rtnVal = lambda_handler(test_event, None)
-print(rtnVal)
+# rtnVal = lambda_handler(test_event, None)
+# print(rtnVal)
 ############# dev
