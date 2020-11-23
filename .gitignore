@@ -94,7 +94,7 @@ sw.*
 # Vim swap files
 *.swp
 
-
+# backend
 whoop_raw.json
 assets/staticData.js
 
@@ -105,6 +105,24 @@ backend/output/*
 backend/bin
 backend/lib
 backend.zip
+node_modules
+npm-debug.log
+package-lock.json
+package
+*out.yml
+out.json
+bucket-name.txt
+target
+build
+.gradle
+*.zip
+bin
+obj
+main
+Gemfile.lock
+lib
+__pycache__
+*.pyc
 
 **.ipynb_checkpoints
 **__pycache__
