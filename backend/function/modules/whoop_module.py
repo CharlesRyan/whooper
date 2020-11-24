@@ -1,7 +1,6 @@
 import requests
 import pandas as pd
 import numpy as np
-import configparser
 import json
 from datetime import timedelta, datetime
 from dateutil import relativedelta, parser, rrule
@@ -30,10 +29,12 @@ class whoop_module:
             return f"error requesting {url}"
 
     def authorize(self, user_ini):
-        config = configparser.ConfigParser()
-        config.read(user_ini)
-        username = config['whoop']['username']
-        password = config['whoop']['password']
+        # config = configparser.ConfigParser()
+        # config.read(user_ini)
+        # username = config['whoop']['username']
+        username = 'username'
+        # password = config['whoop']['password']
+        password = 'password'
         headers = {
                 "username": username,
                 "password": password,

@@ -21,8 +21,8 @@ Resources:
   libs:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      LayerName: blank-python-lib
-      Description: Dependencies for the blank-python sample app.
+      LayerName: whooper-lib
+      Description: Dependencies for the whooper sample app.
       ContentUri: package/.
       CompatibleRuntimes:
         - python3.8

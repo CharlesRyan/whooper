@@ -10,9 +10,10 @@
     "start": "nuxt start",
     "generate": "nuxt generate",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
-    "s3": "aws s3 cp backend s3://whooper-backend --recursive",
-    "lambda": "aws lambda update-function-code --function-name whooper --zip-file fileb://backend.zip",
-    "zip": "zip -r backend.zip backend",
+    "lambda": "cd backend && aws lambda update-function-code --function-name Whooper --zip-file fileb://lambda_function.zip",
+    "zip": "cd backend && zip -r lambda_function.zip ./function",
+    "deploy:lambda": "npm run zip && npm run lambda",
+    "s3": "cd backend && ./2-build-layer.sh && ./3-deploy.sh",
     "py": "python3 backend/lambda_function.py"
   },
   "lint-staged": {
