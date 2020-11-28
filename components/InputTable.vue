@@ -1,6 +1,9 @@
 <template lang="pug">
   v-app
     .input-table
+      Loader(
+        v-if="networkLoading"
+      )
       .input-table__input-wrap
         .input-table__instructions
           p Simply copy and paste values from a spreadsheet/csv file
@@ -15,7 +18,7 @@
             type='file'
             @change="selectedFile"
           )
-      v-data-table.elevation-1(:headers='headers' :items='tableRows' :loading='loading')
+      v-data-table.elevation-1(:headers='headers' :items='tableRows' :loading='tableLoading')
         template(v-slot:top)
           v-toolbar(flat)
             v-toolbar-title Data Input
@@ -50,13 +53,13 @@
           v-icon(small='' @click='deleteItem(item)') mdi-delete
         template(v-slot:no-data)
           v-btn(color='primary' @click='initialize') Reset
-      v-btn(color='primary' @click='analyze') Run Analysis
+      v-btn.my-10(color='primary' @click='analyze') Run Analysis
         
     v-snackbar(
       v-model="colSnackbar"
       timeout="-1"
       :class="{'stacked-snack': rowSnackbar}"
-    ) Columns are limited to a maximum of {{ dataLimit }}
+    ) Columns are limited to a maximum of {{ colLimit }}
       template(
         v-slot:action="{ attrs }"
       )
@@ -69,7 +72,7 @@
     v-snackbar(
       v-model="rowSnackbar"
       timeout="-1"
-    ) Rows are limited to a maximum of {{ dataLimit }}
+    ) Rows are limited to a maximum of {{ rowLimit }}
       template(
         v-slot:action="{ attrs }"
       )
@@ -87,22 +90,29 @@
 <script>
 import axios from 'axios'
 import Papa from 'papaparse'
+import { mapState } from 'vuex'
 
 import sampleTableData from '../assets/js/sampleTableData'
+import Pages from "../pages"
 import Footer from './Footer'
+import Loader from './Loader'
 
 export default {
   name: 'InputTable',
   components: {
-    Footer
+    Footer,
+    Loader
   },
   props: {
     userData: Array
   },
   data() {
     return {
+      endpoint:
+        'https://mjlck5n8ke.execute-api.us-west-1.amazonaws.com/whooper-test-dev-whooper',
       singleSelect: false,
-      loading: true,
+      tableLoading: true,
+      networkLoading: false,
       selected: [],
       rawHeaders: [],
       inputHeaders: [],
@@ -112,16 +122,23 @@ export default {
       tableRows: [],
       editedIndex: -1,
       editedItem: {},
-      dataLimit: 10000,
+      colLimit: 10000,
+      rowLimit: 10000,
       colSnackbar: false,
       rowSnackbar: false
     }
   },
   mounted() {
     this.initialize()
-    this.loading = false
+    this.tableLoading = false
   },
   computed: {
+    ...mapState({
+      accentColor: (state) => state.accentColor,
+      accentColorDark: (state) => state.accentColorDark,
+      accentColorLite: (state) => state.accentColorLite,
+      correlationData: (state) => state.correlationData,
+    }),
     formTitle() {
       return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
     },
@@ -147,19 +164,22 @@ export default {
     isBool(item) {
       return typeof item === 'boolean'
     },
-    async hitAPI() {
-      const url =
-        'https://mjlck5n8ke.execute-api.us-west-1.amazonaws.com/whooper'
+    async analyze() {
+      this.networkLoading = true
       try {
-        const response = await axios.get(url)
-        console.log('response', response)
+        const response = await axios.get(this.endpoint, {
+          params: { data: this.formattedData }
+        })
+        this.networkLoading = false
+        this.$store.commit('setCorrelationData', JSON.parse(response.data))
+        this.$store.commit('setPage', Pages.GRAPH)
       } catch (e) {
         console.log('data error', e)
+        this.networkLoading = false
       }
     },
-    analyze() {},
     selectedFile(e) {
-      this.loading = true
+      this.tableLoading = true
       let file = e.target.files[0]
       if (!file) return
 
@@ -173,7 +193,7 @@ export default {
       }
     },
     onPaste(e) {
-      this.loading = true
+      this.tableLoading = true
       if (!e.clipboardData || !e.clipboardData.items) return
       const { items } = e.clipboardData
       const data = Array.from(items).find((itm) => itm.type === 'text/plain')
@@ -188,14 +208,14 @@ export default {
     },
     buildTableRows(header, rows) {
       // size limiting
-      if (header.length > this.dataLimit) {
-        header = header.slice(0, this.dataLimit)
-        rows = rows.map((row) => row.slice(0, this.dataLimit))
+      if (header.length > this.colLimit) {
+        header = header.slice(0, this.colLimit)
+        rows = rows.map((row) => row.slice(0, this.colLimit))
         this.colSnackbar = true
       }
 
-      if (rows.length > this.dataLimit) {
-        rows = rows.slice(0, this.dataLimit)
+      if (rows.length > this.rowLimit) {
+        rows = rows.slice(0, this.rowLimit)
         this.rowSnackbar = true
       }
 
@@ -214,7 +234,7 @@ export default {
       })
 
       this.tableRows = newRows
-      this.loading = false
+      this.tableLoading = false
     },
     initialize() {
       this.tableRows = sampleTableData
@@ -339,7 +359,7 @@ export default {
   &__inputs {
     justify-content: space-between;
   }
-  
+
   &__instructions {
     justify-content: space-around;
     p {

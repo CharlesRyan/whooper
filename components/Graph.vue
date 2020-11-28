@@ -70,9 +70,7 @@
                     outlined
                   ) {{ node }}
         v-expansion-panel
-          v-expansion-panel-header(
-            @click="panelToggle"
-          ) Node options
+          v-expansion-panel-header Node options
           v-expansion-panel-content
             v-divider
             v-row.flex-row.graph__node-toggle-buttons.py-5
@@ -110,15 +108,6 @@
         :options='graphOptions'
         @node-click='handleNodeClick'
       )
-      v-progress-circular(
-        v-else
-        :value="0"
-        size="100"
-        class="ml-2"
-        :indeterminate="true"
-        :color="accentColor"
-        class='graph__loader'
-      )
     
     Footer
 
@@ -146,11 +135,7 @@ export default {
       allLinks: [],
       allNodes: [],
       nodesWithLinks: [],
-      panelOpen: false,
       minSignificance: 10,
-      accentColor: 'red darken-3',
-      accentColorDark: 'red darken-10',
-      accentColorLite: 'red lighten-4',
       showPositiveLinks: true,
       showNegativeLinks: true,
       nodePickerActive: false,
@@ -158,12 +143,18 @@ export default {
     }
   },
   async mounted() {
-    this.loading = false
-    await this.getSampleData()
+    this.parseCorrelations()
     this.buildLinks()
     this.buildNodes()
+    this.loading = false
   },
   computed: {
+    ...mapState({
+      accentColor: (state) => state.accentColor,
+      accentColorDark: (state) => state.accentColorDark,
+      accentColorLite: (state) => state.accentColorLite,
+      correlationData: (state) => state.correlationData,
+    }),
     showGraph() {
       return !!(
         this.correlations.length &&
@@ -245,6 +236,7 @@ export default {
     buildLinks() {
       const significanceLimit = 0.1
       const maxStrokeWidth = 10
+      const opacityFloor = 0.3
       // lookup table reduces duplicate links  fed into graph component
       const linkTable = {}
       const allLinks = []
@@ -266,6 +258,10 @@ export default {
             const color = corr.data[key] > 0 ? 'green' : 'red'
             const significance = corr.data[key]
             const absoluteSignificance = Math.abs(corr.data[key])
+            const opacity =
+              absoluteSignificance > opacityFloor
+                ? absoluteSignificance
+                : opacityFloor
             const strokeWidth = significance * maxStrokeWidth
 
             const link = {
@@ -276,7 +272,7 @@ export default {
               absoluteSignificance,
               _svgAttrs: {
                 'stroke-width': strokeWidth,
-                opacity: absoluteSignificance
+                opacity
               }
             }
 
@@ -305,22 +301,16 @@ export default {
         }
       })
     },
-    panelToggle() {
-      this.panelOpen = !this.panelOpen
-      // this was firing too early, but could be handy to keep data in sync with component state
-      // const activePanel = document.querySelector('.v-expansion-panel--active')
-      // this.panelOpen = !!activePanel
-    },
-    getSampleData() {
+    parseCorrelations() {
+      console.log(this.correlationData);
       //  parse correlations into an array of objects
       // {name: '', data: {} }
-      this.correlations = Object.keys(rawCorrelations).map((key) => {
+      this.correlations = Object.keys(this.correlationData).map((key) => {
         return {
           name: key,
-          data: rawCorrelations[key]
+          data: this.correlationData[key]
         }
       })
-      this.$store.commit('setCorrelationData', this.correlations)
     }
   },
   watch: {
@@ -357,12 +347,6 @@ export default {
         cursor: pointer;
       }
     }
-  }
-
-  &__loader {
-    position: fixed;
-    top: calc(50% - 50px);
-    left: calc(50% - 50px);
   }
 
   &__options {

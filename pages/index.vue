@@ -1,7 +1,11 @@
 <template lang="pug">
   .whooper
-    //- Graph
-    InputTable
+    InputTable(
+      v-if="page === Pages.INPUT_TABLE"
+    )
+    Graph(
+      v-if="page === Pages.GRAPH"
+    )
     DataTable(
       v-if="showDataTable"
       :userData="userData"
@@ -13,11 +17,14 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 import DataTable from '../components/DataTable'
 import InputTable from '../components/InputTable'
 import WhoopLogin from '../components/WhoopLogin'
 import Chart from '../components/Chart'
 import Graph from '../components/Graph'
+import Pages from "../pages"
 
 export default {
   components: {
@@ -35,11 +42,18 @@ export default {
       userId: '',
       userData: [],
       showDataTable: false,
-      showWhoopLogin: false
+      showWhoopLogin: false,
+      Pages
     }
   },
-  mounted() {},
-  computed: {},
+  mounted() {
+    this.$store.commit('setTest', 'test heah')
+  },
+  computed: {
+    ...mapState({
+      page: (state) => state.page
+    })
+  },
   methods: {
     setData(data) {
       this.userData = data
