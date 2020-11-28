@@ -1,4 +1,4 @@
 export default {
-  GRAPH: 'graph',
-  INPUT_TABLE: 'inputTable'
+  GRAPH: 'Graph',
+  INPUT_TABLE: 'Input Table'
 }

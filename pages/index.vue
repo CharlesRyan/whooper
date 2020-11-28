@@ -1,19 +1,23 @@
 <template lang="pug">
-  .whooper
-    InputTable(
-      v-if="page === Pages.INPUT_TABLE"
-    )
-    Graph(
-      v-if="page === Pages.GRAPH"
-    )
-    DataTable(
-      v-if="showDataTable"
-      :userData="userData"
-    )
-    WhoopLogin(
-      v-if="showWhoopLogin"
-      @setData="setData"
-    )
+  v-app
+    .whooper
+      Navbar
+      InputTable(
+        v-if="page === Pages.INPUT_TABLE"
+      )
+      Graph(
+        v-if="page === Pages.GRAPH"
+      )
+      DataTable(
+        v-if="showDataTable"
+        :userData="userData"
+      )
+      WhoopLogin(
+        v-if="showWhoopLogin"
+        @setData="setData"
+      )
+    
+    Footer
 </template>
 
 <script>
@@ -24,6 +28,8 @@ import InputTable from '../components/InputTable'
 import WhoopLogin from '../components/WhoopLogin'
 import Chart from '../components/Chart'
 import Graph from '../components/Graph'
+import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 import Pages from "../pages"
 
 export default {
@@ -32,7 +38,9 @@ export default {
     InputTable,
     WhoopLogin,
     Chart,
-    Graph
+    Graph,
+    Navbar,
+    Footer
   },
   data() {
     return {

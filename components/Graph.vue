@@ -1,115 +1,112 @@
 <template lang="pug">
-  v-app
-    .graph
-      v-expansion-panels.my-10
-        //- Options
-        v-expansion-panel
-          v-expansion-panel-header Connection Options
-          v-expansion-panel-content.graph__options
-            v-divider
-            v-row.flex-row.flex-wrap(
-              justify="space-around"
-              align="center"
-            )
-              v-col.col-12
-                .graph__options__slider-label
-                  p Connection Threshold
-                  div
-                    p Weak
-                    p Strong
-                v-slider(
-                  v-model="minSignificance"
-                  :color="accentColor"
-                  :track-color="accentColorDark"
-                  max="90"
-                  ticks
-                )
-            v-divider
-            v-row.flex-row.flex-wrap.graph__options__direction(
-              justify="space-around"
-              align="center"
-            )
-              v-col.col-12
-                .graph__options__direction__label
-                  p Filter Connections
-                  v-switch(
-                    label="Positive"
-                    v-model="showPositiveLinks"
-                    :color="accentColor"
-                    inset
-                  )
-                  v-switch(
-                    label="Negative"
-                    v-model="showNegativeLinks"
-                    :color="accentColor"
-                    inset
-                  )
-            v-divider
-            v-row.flex-row.flex-wrap.graph__options__picker(
-              justify="space-around"
-              align="center"
-            )
-              v-col.col-12
-                .graph__options__picker__label
-                  p Node Picker Mode
-                  p When selected, clicking a node will hide all other connections
-                v-switch(
-                  label=""
-                  v-model="nodePickerActive"
-                  :color="accentColor"
-                  inset
-                )
-                .graph__options__picker__list(
-                  v-if="pickedNodes.length"
-                )
-                  v-chip.ma-1(
-                    v-for='node in pickedNodes'
-                    :key='node'
-                    @click="removePickedNode(node)"
-                    close
-                    outlined
-                  ) {{ node }}
-        v-expansion-panel
-          v-expansion-panel-header Node options
-          v-expansion-panel-content
-            v-divider
-            v-row.flex-row.graph__node-toggle-buttons.py-5
-              v-btn(
-                @click='showAllNodes'
-                :disabled='allNodes.length === currentNodes.length'
-                depressed
+  .graph
+    v-expansion-panels.my-10
+      //- Options
+      v-expansion-panel
+        v-expansion-panel-header Connection Options
+        v-expansion-panel-content.graph__options
+          v-divider
+          v-row.flex-row.flex-wrap(
+            justify="space-around"
+            align="center"
+          )
+            v-col.col-12
+              .graph__options__slider-label
+                p Connection Threshold
+                div
+                  p Weak
+                  p Strong
+              v-slider(
+                v-model="minSignificance"
                 :color="accentColor"
-              ) Show All
-              v-btn(
-                @click='hideAllNodes'
-                :disabled='!currentNodes.length'
-                depressed        
-                :color="accentColor"
-              ) Hide All
-            v-row.flex-row.flex-wrap.graph__node-toggles(
-              justify="space-around"
-              align="center"
-            )
-              v-col(
-                v-for="node in allNodes"
-                :key="node.name"
+                :track-color="accentColorDark"
+                max="90"
+                ticks
               )
+          v-divider
+          v-row.flex-row.flex-wrap.graph__options__direction(
+            justify="space-around"
+            align="center"
+          )
+            v-col.col-12
+              .graph__options__direction__label
+                p Filter Connections
                 v-switch(
-                  :label="node.name"
-                  v-model="node.active"
+                  label="Positive"
+                  v-model="showPositiveLinks"
                   :color="accentColor"
                   inset
                 )
-      d3-network(
-        v-if='showGraph'
-        :class="['graph__network', {active: showGraph},  {'picker-mode': nodePickerActive}]"
-        :net-nodes='currentNodes'
-        :net-links='currentLinks'
-        :options='graphOptions'
-        @node-click='handleNodeClick'
-      )
-    
-    Footer
+                v-switch(
+                  label="Negative"
+                  v-model="showNegativeLinks"
+                  :color="accentColor"
+                  inset
+                )
+          v-divider
+          v-row.flex-row.flex-wrap.graph__options__picker(
+            justify="space-around"
+            align="center"
+          )
+            v-col.col-12
+              .graph__options__picker__label
+                p Node Picker Mode
+                p When selected, clicking a node will hide all other connections
+              v-switch(
+                label=""
+                v-model="nodePickerActive"
+                :color="accentColor"
+                inset
+              )
+              .graph__options__picker__list(
+                v-if="pickedNodes.length"
+              )
+                v-chip.ma-1(
+                  v-for='node in pickedNodes'
+                  :key='node'
+                  @click="removePickedNode(node)"
+                  close
+                  outlined
+                ) {{ node }}
+      v-expansion-panel
+        v-expansion-panel-header Node options
+        v-expansion-panel-content
+          v-divider
+          v-row.flex-row.graph__node-toggle-buttons.py-5
+            v-btn(
+              @click='showAllNodes'
+              :disabled='allNodes.length === currentNodes.length'
+              depressed
+              :color="accentColor"
+            ) Show All
+            v-btn(
+              @click='hideAllNodes'
+              :disabled='!currentNodes.length'
+              depressed        
+              :color="accentColor"
+            ) Hide All
+          v-row.flex-row.flex-wrap.graph__node-toggles(
+            justify="space-around"
+            align="center"
+          )
+            v-col(
+              v-for="node in allNodes"
+              :key="node.name"
+            )
+              v-switch(
+                :label="node.name"
+                v-model="node.active"
+                :color="accentColor"
+                inset
+              )
+    d3-network(
+      v-if='showGraph'
+      :class="['graph__network', {active: showGraph},  {'picker-mode': nodePickerActive}]"
+      :net-nodes='currentNodes'
+      :net-links='currentLinks'
+      :options='graphOptions'
+      @node-click='handleNodeClick'
+    )
 
 </template>
 
@@ -143,7 +140,6 @@ export default {
     }
   },
   async mounted() {
-    this.parseCorrelations()
     this.buildLinks()
     this.buildNodes()
     this.loading = false
@@ -153,11 +149,11 @@ export default {
       accentColor: (state) => state.accentColor,
       accentColorDark: (state) => state.accentColorDark,
       accentColorLite: (state) => state.accentColorLite,
-      correlationData: (state) => state.correlationData,
+      correlationData: (state) => state.correlationData
     }),
     showGraph() {
       return !!(
-        this.correlations.length &&
+        this.correlationData.length &&
         this.allNodes.length &&
         this.allLinks.length
       )
@@ -241,7 +237,7 @@ export default {
       const linkTable = {}
       const allLinks = []
 
-      this.correlations.forEach((corr) => {
+      this.correlationData.forEach((corr) => {
         linkTable[corr.name] = {}
         const corrData = Object.keys(corr.data)
         let hasLoggedCorrName = false
@@ -301,17 +297,6 @@ export default {
         }
       })
     },
-    parseCorrelations() {
-      console.log(this.correlationData);
-      //  parse correlations into an array of objects
-      // {name: '', data: {} }
-      this.correlations = Object.keys(this.correlationData).map((key) => {
-        return {
-          name: key,
-          data: this.correlationData[key]
-        }
-      })
-    }
   },
   watch: {
     nodePickerActive: function(newVal, oldVal) {
@@ -349,6 +334,11 @@ export default {
     }
   }
 
+  .node-label {
+    font-size: 0.8rem;
+    letter-spacing: .3px
+  }
+
   &__options {
     &__slider-label {
       font-size: 0.9rem;
@@ -369,8 +359,8 @@ export default {
 
   .v-expansion-panels {
     position: absolute;
-    top: 20px;
-    left: 20px;
+    top: 84px;
+    right: 20px;
     z-index: 10;
     transition: all ease 0.3s;
     max-width: 400px;

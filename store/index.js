@@ -1,12 +1,11 @@
 import Pages from "../pages"
+import Colors from "../colors"
 
 export const state = () => ({
-  correlationData: {},
+  correlationData: [],
   test: '',
-  accentColor: 'red darken-3',
-  accentColorDark: 'red darken-10',
-  accentColorLite: 'red lighten-4',
-  page: Pages.INPUT_TABLE
+  page: Pages.INPUT_TABLE,
+  ...Colors
 })
 
 export const mutations = {

@@ -1,89 +1,87 @@
 <template lang="pug">
-  v-app
-    .input-table
-      Loader(
-        v-if="networkLoading"
-      )
-      .input-table__input-wrap
-        .input-table__instructions
-          p Simply copy and paste values from a spreadsheet/csv file
-          p OR
-          p Upload the file itself
-        .input-table__inputs
-          input.text-input(
-            type='text'
-            @paste='onPaste'
-          )
-          input.file-input(
-            type='file'
-            @change="selectedFile"
-          )
-      v-data-table.elevation-1(:headers='headers' :items='tableRows' :loading='tableLoading')
-        template(v-slot:top)
-          v-toolbar(flat)
-            v-toolbar-title Data Input
-            v-divider.mx-4(inset vertical)
-            v-spacer
-            v-dialog(v-model='dialog' max-width='500px')
-              template(v-slot:activator='{ on, attrs }')
-                v-btn.mb-2(color='primary' v-bind='attrs' v-on='on') New Row
-              v-card
-                v-card-title
-                  span.headline {{ formTitle }}
-                v-card-text
-                  v-container
-                    v-row
-                      v-col(cols='12' sm='6' md='4' v-for="key in Object.keys(editedItem)" :key='key')
-                        v-checkbox(v-if="isBool(editedItem[key])" v-model='editedItem[key]' :label='key | capitalize')
-                        v-text-field(v-else v-model='editedItem[key]' :label='key | capitalize')
-                v-card-actions
-                  v-spacer
-                  v-btn(color='blue darken-1' text='' @click='close') Cancel
-                  v-btn(color='blue darken-1' text='' @click='save') Save
-            v-dialog(v-model='dialogDelete' max-width='500px')
-              v-card
-                v-card-title.headline Are you sure you want to delete this item?
-                v-card-actions
-                  v-spacer
-                  v-btn(color='blue darken-1' text='' @click='closeDelete') Cancel
-                  v-btn(color='blue darken-1' text='' @click='deleteItemConfirm') OK
-                  v-spacer
-        template(v-slot:item.actions='{ item }')
-          v-icon.mr-2(small @click='editItem(item)') mdi-pencil
-          v-icon(small='' @click='deleteItem(item)') mdi-delete
-        template(v-slot:no-data)
-          v-btn(color='primary' @click='initialize') Reset
-      v-btn.my-10(color='primary' @click='analyze') Run Analysis
-        
-    v-snackbar(
-      v-model="colSnackbar"
-      timeout="-1"
-      :class="{'stacked-snack': rowSnackbar}"
-    ) Columns are limited to a maximum of {{ colLimit }}
-      template(
-        v-slot:action="{ attrs }"
-      )
-        v-btn(
-          color="primary"
-          text
-          v-bind="attrs"
-          @click="colSnackbar = false"
-        ) Close
-    v-snackbar(
-      v-model="rowSnackbar"
-      timeout="-1"
-    ) Rows are limited to a maximum of {{ rowLimit }}
-      template(
-        v-slot:action="{ attrs }"
-      )
-        v-btn(
-          color="primary"
-          text
-          v-bind="attrs"
-          @click="rowSnackbar = false"
-        ) Close
-    
-    Footer
+.input-table-wrap
+  .input-table
+    Loader(
+      v-if="networkLoading"
+    )
+    .input-table__input-wrap
+      .input-table__instructions
+        p Simply copy and paste values from a spreadsheet/csv file
+        p OR
+        p Upload the file itself
+      .input-table__inputs
+        input.text-input(
+          type='text'
+          @paste='onPaste'
+        )
+        input.file-input(
+          type='file'
+          @change="selectedFile"
+        )
+    v-data-table.elevation-1(:headers='headers' :items='tableRows' :loading='tableLoading')
+      template(v-slot:top)
+        v-toolbar(flat)
+          v-toolbar-title Data Input
+          v-divider.mx-4(inset vertical)
+          v-spacer
+          v-dialog(v-model='dialog' max-width='500px')
+            template(v-slot:activator='{ on, attrs }')
+              v-btn.mb-2(color='primary' v-bind='attrs' v-on='on') New Row
+            v-card
+              v-card-title
+                span.headline {{ formTitle }}
+              v-card-text
+                v-container
+                  v-row
+                    v-col(cols='12' sm='6' md='4' v-for="key in Object.keys(editedItem)" :key='key')
+                      v-checkbox(v-if="isBool(editedItem[key])" v-model='editedItem[key]' :label='key | capitalize')
+                      v-text-field(v-else v-model='editedItem[key]' :label='key | capitalize')
+              v-card-actions
+                v-spacer
+                v-btn(color='blue darken-1' text='' @click='close') Cancel
+                v-btn(color='blue darken-1' text='' @click='save') Save
+          v-dialog(v-model='dialogDelete' max-width='500px')
+            v-card
+              v-card-title.headline Are you sure you want to delete this item?
+              v-card-actions
+                v-spacer
+                v-btn(color='blue darken-1' text='' @click='closeDelete') Cancel
+                v-btn(color='blue darken-1' text='' @click='deleteItemConfirm') OK
+                v-spacer
+      template(v-slot:item.actions='{ item }')
+        v-icon.mr-2(small @click='editItem(item)') mdi-pencil
+        v-icon(small='' @click='deleteItem(item)') mdi-delete
+      template(v-slot:no-data)
+        v-btn(color='primary' @click='initialize') Reset
+    v-btn.my-10(color='primary' @click='analyze') Run Analysis
+      
+  v-snackbar(
+    v-model="colSnackbar"
+    timeout="-1"
+    :class="{'stacked-snack': rowSnackbar}"
+  ) Columns are limited to a maximum of {{ colLimit }}
+    template(
+      v-slot:action="{ attrs }"
+    )
+      v-btn(
+        color="primary"
+        text
+        v-bind="attrs"
+        @click="colSnackbar = false"
+      ) Close
+  v-snackbar(
+    v-model="rowSnackbar"
+    timeout="-1"
+  ) Rows are limited to a maximum of {{ rowLimit }}
+    template(
+      v-slot:action="{ attrs }"
+    )
+      v-btn(
+        color="primary"
+        text
+        v-bind="attrs"
+        @click="rowSnackbar = false"
+      ) Close
 
 </template>
 
@@ -93,7 +91,7 @@ import Papa from 'papaparse'
 import { mapState } from 'vuex'
 
 import sampleTableData from '../assets/js/sampleTableData'
-import Pages from "../pages"
+import Pages from '../pages'
 import Footer from './Footer'
 import Loader from './Loader'
 
@@ -137,7 +135,7 @@ export default {
       accentColor: (state) => state.accentColor,
       accentColorDark: (state) => state.accentColorDark,
       accentColorLite: (state) => state.accentColorLite,
-      correlationData: (state) => state.correlationData,
+      correlationData: (state) => state.correlationData
     }),
     formTitle() {
       return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
@@ -161,17 +159,29 @@ export default {
     }
   },
   methods: {
+    parseCorrelations(corrObj) {
+      //  parse correlations into an array of objects
+      // {name: '', data: {} }
+      const parsedCorrObj = JSON.parse(corrObj)
+      return Object.keys(parsedCorrObj).map((key) => {
+        return {
+          name: key,
+          data: parsedCorrObj[key]
+        }
+      })
+    },
     isBool(item) {
       return typeof item === 'boolean'
     },
     async analyze() {
       this.networkLoading = true
       try {
-        const response = await axios.get(this.endpoint, {
+        const { data } = await axios.get(this.endpoint, {
           params: { data: this.formattedData }
         })
         this.networkLoading = false
-        this.$store.commit('setCorrelationData', JSON.parse(response.data))
+        const dataArr = this.parseCorrelations(data)
+        this.$store.commit('setCorrelationData', dataArr)
         this.$store.commit('setPage', Pages.GRAPH)
       } catch (e) {
         console.log('data error', e)
@@ -199,8 +209,6 @@ export default {
       const data = Array.from(items).find((itm) => itm.type === 'text/plain')
       if (!data) return
       data.getAsString(this.parseInput)
-
-      // const {header, rows} = this.parseTSVInput(data)
     },
     parseInput(input) {
       const results = Papa.parse(input)

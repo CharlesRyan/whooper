@@ -1,8 +1,6 @@
 <template lang="pug">
   .footer.mb-2
-    p Built with 
-    img(src="https://nuxtjs.org/logos/nuxt-icon.png")
-    p by
+    p 2020 -
     a(href="https://charlesryan.dev") Charles
 
 </template>
@@ -21,6 +19,10 @@ export default {
   img,
   a {
     margin: 0 3px;
+  }
+
+  a {
+    color: #fff;
   }
 
   p {
