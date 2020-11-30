@@ -1,11 +1,14 @@
-import Pages from "../pages"
-import Colors from "../colors"
+import Pages from '../pages'
+import Colors from '../colors'
 
 export const state = () => ({
   correlationData: [],
   test: '',
   page: Pages.INPUT_TABLE,
-  ...Colors
+  ...Colors,
+  whoopEmail: '',
+  whoopAuthToken: '',
+  whoopID: ''
 })
 
 export const mutations = {
@@ -18,5 +21,10 @@ export const mutations = {
   setPage(state, data) {
     state.page = data
   },
-
+  setWhoopData(state, data) {
+    const { whoopEmail, whoopAuthToken, whoopID } = data
+    state.whoopEmail = whoopEmail
+    state.whoopAuthToken = whoopAuthToken
+    state.whoopID = whoopID
+  }
 }

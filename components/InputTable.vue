@@ -53,7 +53,10 @@
         v-icon(small='' @click='deleteItem(item)') mdi-delete
       template(v-slot:no-data)
         v-btn(color='primary' @click='initialize') Reset
-    v-btn.my-10(color='primary' @click='analyze') Run Analysis
+    v-btn.my-10(color='primary' @click='analyze') Generate Chart
+
+    .input-table__whoop-login
+      WhoopLogin
       
   v-snackbar(
     v-model="colSnackbar"
@@ -92,14 +95,17 @@ import { mapState } from 'vuex'
 
 import sampleTableData from '../assets/js/sampleTableData'
 import Pages from '../pages'
+
 import Footer from './Footer'
+import WhoopLogin from './WhoopLogin'
 import Loader from './Loader'
 
 export default {
   name: 'InputTable',
   components: {
     Footer,
-    Loader
+    Loader,
+    WhoopLogin
   },
   props: {
     userData: Array
@@ -135,7 +141,9 @@ export default {
       accentColor: (state) => state.accentColor,
       accentColorDark: (state) => state.accentColorDark,
       accentColorLite: (state) => state.accentColorLite,
-      correlationData: (state) => state.correlationData
+      correlationData: (state) => state.correlationData,
+      whoopAuthToken: (state) => state.whoopAuthToken,
+      whoopID: (state) => state.whoopID
     }),
     formTitle() {
       return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
@@ -175,16 +183,20 @@ export default {
     },
     async analyze() {
       this.networkLoading = true
+      const params = { data: this.formattedData }
+      if (this.whoopAuthToken && this.whoopID) {
+        params.whoop = { token: this.whoopAuthToken, id: this.whoopID }
+      }
       try {
         const { data } = await axios.get(this.endpoint, {
-          params: { data: this.formattedData }
+          params
         })
-        this.networkLoading = false
         const dataArr = this.parseCorrelations(data)
         this.$store.commit('setCorrelationData', dataArr)
         this.$store.commit('setPage', Pages.GRAPH)
       } catch (e) {
         console.log('data error', e)
+      } finally {
         this.networkLoading = false
       }
     },
@@ -215,13 +227,14 @@ export default {
       this.buildTableRows(results.data[0], results.data.slice(1))
     },
     buildTableRows(header, rows) {
-      // size limiting
+      // size limiting - columns
       if (header.length > this.colLimit) {
         header = header.slice(0, this.colLimit)
         rows = rows.map((row) => row.slice(0, this.colLimit))
         this.colSnackbar = true
       }
 
+      // size limiting - rows
       if (rows.length > this.rowLimit) {
         rows = rows.slice(0, this.rowLimit)
         this.rowSnackbar = true
@@ -374,6 +387,11 @@ export default {
       max-width: 240px;
       width: 33%;
     }
+  }
+
+  &__whoop-login {
+    display: flex;
+    justify-content: center;
   }
 }
 

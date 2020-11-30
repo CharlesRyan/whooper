@@ -1,57 +1,45 @@
 <template lang="pug">
-  v-app.align-center
-    .login.mx-10
-      h1 Whooper
-      p Visualization of raw data straight from Whoop's API
-      v-form(v-model="valid" @submit.prevent="fetchUserData")
-        v-row
-          v-col()
-            v-text-field(
-              v-model="username"
-              label="Whoop Account Email"
-              :rules="usernameRules"
-              type="email"
-              required
-            )
-            v-text-field(
-              v-model="password"
-              label="Password"
-              :rules="passwordRules"
-              type="password"
-              required
-            )
-            v-row.mt-6.justify-space-around
-
-              v-btn.mb-4(
-                :disabled="!valid"
-                type="submit"
-                color="primary"
-                large
-              ) Fetch Whoop Data
-
-              v-btn.mb-4(
-                @click="useSampleData"
-                large
-              ) Use Sample Data
-
-      p.mt-8 Your credentials are never saved by this app. They are only used to request data from Whoop's servers.
-      p You can check out the source code 
-        a( 
-          href="https://github.com/CharlesRyan/whooper" 
-          target="_blank"
-        ) here
-
-    
-    Footer
+  .login.align-center.mx-10
+    h3(
+      :class="{cta: ctaState}"
+      @click="showForm = !showForm"
+      v-if="!loggedInState"
+    ) Log in with Whoop
+    h3(
+      v-if="loggedInState"
+    ) Using data from Whoop account- {{whoopEmail}}
+    v-form(v-model="valid" @submit.prevent="handleSubmit" v-if="formState")
+      v-row
+        v-col()
+          v-text-field(
+            v-model="username"
+            label="Whoop Account Email"
+            :rules="usernameRules"
+            type="email"
+            required
+          )
+          v-text-field(
+            v-model="password"
+            label="Password"
+            :rules="passwordRules"
+            type="password"
+            required
+          )
+          v-row.mt-6.justify-space-around
+            v-btn.mb-4(
+              :disabled="!valid"
+              type="submit"
+              color="primary"
+              large
+            ) Log In
 
 </template>
 
 <script>
 import axios from 'axios'
+import { mapState } from 'vuex'
 
 import Footer from './Footer'
-
-import sampleData from '../assets/js/staticData'
 
 export default {
   components: {
@@ -61,22 +49,41 @@ export default {
     return {
       username: '',
       password: '',
-      accessToken: '',
-      userId: '',
       valid: false,
+      showForm: false,
       usernameRules: [(v) => !!v || 'Email is required'],
       passwordRules: [(v) => !!v || 'Password is required']
     }
   },
   mounted() {},
-  computed: {},
+  computed: {
+    ...mapState({
+      whoopEmail: (state) => state.whoopEmail,
+      whoopAuthToken: (state) => state.whoopAuthToken,
+      whoopID: (state) => state.whoopID
+    }),
+    ctaState() {
+      return !this.whoopAuthToken && !this.showForm
+    },
+    formState() {
+      return !this.whoopAuthToken && this.showForm
+    },
+    loggedInState() {
+      return this.whoopAuthToken && this.whoopEmail
+    }
+  },
   methods: {
-    useSampleData() {
-      this.$emit('setData', sampleData)
+    async handleSubmit() {
+      const authResponse = await this.authenticate()
+      const whoopData = {
+        whoopEmail: this.username,
+        whoopID: authResponse.user.id,
+        whoopAuthToken: authResponse.access_token
+      }
+      this.$store.commit('setWhoopData', whoopData)
     },
     async fetchUserData() {
       const authResponse = await this.authenticate()
-      console.log('fud', authResponse)
       const userData = await this.getData(
         authResponse.user.id,
         authResponse.access_token
@@ -139,8 +146,13 @@ export default {
   margin: auto;
   max-width: 500px;
 
-  h1 {
+  h1, h3 {
     margin-bottom: 16px;
+
+    &.cta {
+      text-decoration: underline;
+      cursor: pointer;
+    }
   }
 }
 </style>
