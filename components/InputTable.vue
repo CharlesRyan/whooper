@@ -113,7 +113,9 @@ export default {
   data() {
     return {
       endpoint:
-        'https://mjlck5n8ke.execute-api.us-west-1.amazonaws.com/whooper-test-dev-whooper',
+        'https://fsw72imcjg.execute-api.us-west-1.amazonaws.com/production/whooper',
+      endpointSLS:
+        'https://ozc5wws5ge.execute-api.us-west-1.amazonaws.com/dev/whooper-sls',
       singleSelect: false,
       tableLoading: true,
       networkLoading: false,
@@ -143,7 +145,8 @@ export default {
       accentColorLite: (state) => state.accentColorLite,
       correlationData: (state) => state.correlationData,
       whoopAuthToken: (state) => state.whoopAuthToken,
-      whoopID: (state) => state.whoopID
+      whoopID: (state) => state.whoopID,
+      whoopCreatedAt: (state) => state.whoopCreatedAt
     }),
     formTitle() {
       return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
@@ -183,17 +186,16 @@ export default {
     },
     async analyze() {
       this.networkLoading = true
-      const params = { data: this.formattedData }
+      const reqData = { sheet: this.formattedData }
       if (this.whoopAuthToken && this.whoopID) {
-        params.whoop = { token: this.whoopAuthToken, id: this.whoopID }
+        reqData.whoop = { token: this.whoopAuthToken, id: this.whoopID, createdAt: this.whoopCreatedAt }
       }
       try {
-        const { data } = await axios.get(this.endpoint, {
-          params
-        })
-        const dataArr = this.parseCorrelations(data)
-        this.$store.commit('setCorrelationData', dataArr)
-        this.$store.commit('setPage', Pages.GRAPH)
+        const res = await axios.post(this.endpointSLS, reqData)
+        console.log('res', JSON.parse(res.data));
+        // const dataArr = this.parseCorrelations(data)
+        // this.$store.commit('setCorrelationData', dataArr)
+        // this.$store.commit('setPage', Pages.GRAPH)
       } catch (e) {
         console.log('data error', e)
       } finally {

@@ -60,7 +60,8 @@ export default {
     ...mapState({
       whoopEmail: (state) => state.whoopEmail,
       whoopAuthToken: (state) => state.whoopAuthToken,
-      whoopID: (state) => state.whoopID
+      whoopID: (state) => state.whoopID,
+      whoopCreatedAt: (state) => state.whoopCreatedAt
     }),
     ctaState() {
       return !this.whoopAuthToken && !this.showForm
@@ -78,6 +79,7 @@ export default {
       const whoopData = {
         whoopEmail: this.username,
         whoopID: authResponse.user.id,
+        whoopCreatedAt: authResponse.user.profile.createdAt,
         whoopAuthToken: authResponse.access_token
       }
       this.$store.commit('setWhoopData', whoopData)
