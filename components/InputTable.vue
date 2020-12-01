@@ -188,14 +188,17 @@ export default {
       this.networkLoading = true
       const reqData = { sheet: this.formattedData }
       if (this.whoopAuthToken && this.whoopID) {
-        reqData.whoop = { token: this.whoopAuthToken, id: this.whoopID, createdAt: this.whoopCreatedAt }
+        reqData.whoop = {
+          token: this.whoopAuthToken,
+          id: this.whoopID,
+          createdAt: this.whoopCreatedAt
+        }
       }
       try {
-        const res = await axios.post(this.endpointSLS, reqData)
-        console.log('res', JSON.parse(res.data));
-        // const dataArr = this.parseCorrelations(data)
-        // this.$store.commit('setCorrelationData', dataArr)
-        // this.$store.commit('setPage', Pages.GRAPH)
+        const { data } = await axios.post(this.endpointSLS, reqData)
+        const dataArr = this.parseCorrelations(data)
+        this.$store.commit('setCorrelationData', dataArr)
+        this.$store.commit('setPage', Pages.GRAPH)
       } catch (e) {
         console.log('data error', e)
       } finally {
