@@ -82,7 +82,7 @@ export default {
         whoopCreatedAt: authResponse.user.profile.createdAt,
         whoopAuthToken: authResponse.access_token
       }
-      this.$store.commit('setWhoopData', whoopData)
+      this.$store.commit('setWhoopAuthData', whoopData)
     },
     async fetchUserData() {
       const authResponse = await this.authenticate()

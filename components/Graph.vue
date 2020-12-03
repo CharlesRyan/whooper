@@ -149,7 +149,8 @@ export default {
       accentColor: (state) => state.accentColor,
       accentColorDark: (state) => state.accentColorDark,
       accentColorLite: (state) => state.accentColorLite,
-      correlationData: (state) => state.correlationData
+      correlationData: (state) => state.correlationData,
+      whoopData: (state) => state.whoopData
     }),
     showGraph() {
       return !!(

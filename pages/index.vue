@@ -8,6 +8,9 @@
       Graph(
         v-if="page === Pages.GRAPH"
       )
+      TimeSeries(
+        v-if="page === Pages.TIME_SERIES"
+      )
       DataTable(
         v-if="showDataTable"
         :userData="userData"
@@ -28,6 +31,7 @@ import InputTable from '../components/InputTable'
 import WhoopLogin from '../components/WhoopLogin'
 import Chart from '../components/Chart'
 import Graph from '../components/Graph'
+import TimeSeries from '../components/TimeSeries'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import Pages from "../pages"
@@ -39,6 +43,7 @@ export default {
     WhoopLogin,
     Chart,
     Graph,
+    TimeSeries,
     Navbar,
     Footer
   },
@@ -80,6 +85,14 @@ export default {
   flex-direction: column;
   align-items: center;
   text-align: center;
+}
+
+.v-application {
+  width: 100%;
+
+  &--wrap {
+    justify-content: space-between;
+  }
 }
 
 .theme--light,

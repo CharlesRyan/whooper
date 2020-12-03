@@ -94,6 +94,8 @@ import Papa from 'papaparse'
 import { mapState } from 'vuex'
 
 import sampleTableData from '../assets/js/sampleTableData'
+import sampleResponse from '../assets/js/testResponse'
+
 import Pages from '../pages'
 
 import Footer from './Footer'
@@ -112,8 +114,6 @@ export default {
   },
   data() {
     return {
-      endpoint:
-        'https://fsw72imcjg.execute-api.us-west-1.amazonaws.com/production/whooper',
       endpointSLS:
         'https://ozc5wws5ge.execute-api.us-west-1.amazonaws.com/dev/whooper-sls',
       singleSelect: false,
@@ -131,12 +131,15 @@ export default {
       colLimit: 10000,
       rowLimit: 10000,
       colSnackbar: false,
-      rowSnackbar: false
+      rowSnackbar: false,
+      prod: false,
+      // prod: true
     }
   },
   mounted() {
     this.initialize()
     this.tableLoading = false
+    console.log(sampleResponse);
   },
   computed: {
     ...mapState({
@@ -146,7 +149,8 @@ export default {
       correlationData: (state) => state.correlationData,
       whoopAuthToken: (state) => state.whoopAuthToken,
       whoopID: (state) => state.whoopID,
-      whoopCreatedAt: (state) => state.whoopCreatedAt
+      whoopCreatedAt: (state) => state.whoopCreatedAt,
+      whoopData: (state) => state.whoopData
     }),
     formTitle() {
       return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
@@ -170,20 +174,6 @@ export default {
     }
   },
   methods: {
-    parseCorrelations(corrObj) {
-      //  parse correlations into an array of objects
-      // {name: '', data: {} }
-      const parsedCorrObj = JSON.parse(corrObj)
-      return Object.keys(parsedCorrObj).map((key) => {
-        return {
-          name: key,
-          data: parsedCorrObj[key]
-        }
-      })
-    },
-    isBool(item) {
-      return typeof item === 'boolean'
-    },
     async analyze() {
       this.networkLoading = true
       const reqData = { sheet: this.formattedData }
@@ -195,15 +185,46 @@ export default {
         }
       }
       try {
-        const { data } = await axios.post(this.endpointSLS, reqData)
-        const dataArr = this.parseCorrelations(data)
-        this.$store.commit('setCorrelationData', dataArr)
-        this.$store.commit('setPage', Pages.GRAPH)
+        const { data } = this.prod ? await axios.post(this.endpointSLS, reqData) : sampleResponse
+        console.log('analysis data', data)
+        const corrDataArr = this.parseCorrelations(data.correlations)
+        this.$store.commit('setCorrelationData', corrDataArr)
+        if (data.hasOwnProperty('whoop_raw_data')) {
+          const parsedWhoopData = this.parseWhoopData(data.whoop_raw_data)
+          this.$store.commit('setWhoopRawData', parsedWhoopData)
+        }
+        // this.$store.commit('setPage', Pages.GRAPH)
+        this.$store.commit('setPage', Pages.TIME_SERIES)
       } catch (e) {
         console.log('data error', e)
       } finally {
         this.networkLoading = false
       }
+    },
+    parseCorrelations(corrObj) {
+      //  parse correlations into an array of objects
+      // {name: '', data: {} }
+      const parsedCorrObj = this.prod ? JSON.parse(corrObj) : corrObj
+      return Object.keys(parsedCorrObj).map((key) => {
+        return {
+          name: key,
+          data: parsedCorrObj[key]
+        }
+      })
+    },
+    isBool(item) {
+      return typeof item === 'boolean'
+    },
+    parseWhoopData(strData) {
+      const rawData = this.prod ? JSON.parse(strData) : strData
+      return Object.keys(rawData).map((categoryKey) => {
+        return {
+          key: categoryKey,
+          data: Object.keys(rawData[categoryKey]).map(
+            (itemKey) => rawData[categoryKey][itemKey]
+          )
+        }
+      })
     },
     selectedFile(e) {
       this.tableLoading = true

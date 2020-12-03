@@ -9,7 +9,8 @@ export const state = () => ({
   whoopEmail: '',
   whoopAuthToken: '',
   whoopID: '',
-  whoopCreatedAt: ''
+  whoopCreatedAt: '',
+  whoopData: []
 })
 
 export const mutations = {
@@ -22,11 +23,14 @@ export const mutations = {
   setPage(state, data) {
     state.page = data
   },
-  setWhoopData(state, data) {
+  setWhoopAuthData(state, data) {
     const { whoopEmail, whoopAuthToken, whoopID, whoopCreatedAt } = data
     state.whoopEmail = whoopEmail
     state.whoopAuthToken = whoopAuthToken
     state.whoopID = whoopID
     state.whoopCreatedAt = whoopCreatedAt
+  },
+  setWhoopRawData(state, data) {
+    state.whoopData = data
   }
 }
