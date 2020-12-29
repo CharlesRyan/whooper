@@ -5,19 +5,20 @@
       v-if="networkLoading"
     )
     .input-table__input-wrap
-      .input-table__instructions
-        p Simply copy and paste values from a spreadsheet/csv file
-        p OR
-        p Upload the file itself
-      .input-table__inputs
-        input.text-input(
-          type='text'
-          @paste='onPaste'
-        )
-        input.file-input(
-          type='file'
-          @change="selectedFile"
-        )
+      InputMenu
+      //- .input-table__instructions
+      //-   p Simply copy and paste values from a spreadsheet/csv file
+      //-   p OR
+      //-   p Upload the file itself
+      //- .input-table__inputs
+      //-   input.text-input(
+      //-     type='text'
+      //-     @paste='onPaste'
+      //-   )
+      //-   input.file-input(
+      //-     type='file'
+      //-     @change="selectedFile"
+      //-   )
     v-data-table.elevation-1(:headers='headers' :items='tableRows' :loading='tableLoading')
       template(v-slot:top)
         v-toolbar(flat)
@@ -90,7 +91,6 @@
 
 <script>
 import axios from 'axios'
-import Papa from 'papaparse'
 import { mapState } from 'vuex'
 
 import sampleTableData from '../assets/js/sampleTableData'
@@ -101,13 +101,15 @@ import Pages from '../pages'
 import Footer from './Footer'
 import WhoopLogin from './WhoopLogin'
 import Loader from './Loader'
+import InputMenu from './InputMenu'
 
 export default {
   name: 'InputTable',
   components: {
     Footer,
     Loader,
-    WhoopLogin
+    WhoopLogin,
+    InputMenu
   },
   props: {
     userData: Array
@@ -132,14 +134,14 @@ export default {
       rowLimit: 10000,
       colSnackbar: false,
       rowSnackbar: false,
-      prod: false,
+      prod: false
       // prod: true
     }
   },
   mounted() {
     this.initialize()
     this.tableLoading = false
-    console.log(sampleResponse);
+    console.log(sampleResponse)
   },
   computed: {
     ...mapState({
@@ -150,7 +152,8 @@ export default {
       whoopAuthToken: (state) => state.whoopAuthToken,
       whoopID: (state) => state.whoopID,
       whoopCreatedAt: (state) => state.whoopCreatedAt,
-      whoopData: (state) => state.whoopData
+      whoopData: (state) => state.whoopData,
+      inputData: (state) => state.inputData
     }),
     formTitle() {
       return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
@@ -185,7 +188,9 @@ export default {
         }
       }
       try {
-        const { data } = this.prod ? await axios.post(this.endpointSLS, reqData) : sampleResponse
+        const { data } = this.prod
+          ? await axios.post(this.endpointSLS, reqData)
+          : sampleResponse
         console.log('analysis data', data)
         const corrDataArr = this.parseCorrelations(data.correlations)
         this.$store.commit('setCorrelationData', corrDataArr)
@@ -226,32 +231,6 @@ export default {
         }
       })
     },
-    selectedFile(e) {
-      this.tableLoading = true
-      let file = e.target.files[0]
-      if (!file) return
-
-      let reader = new FileReader()
-      reader.readAsText(file, 'UTF-8')
-      reader.onload = (evt) => {
-        this.parseInput(evt.target.result)
-      }
-      reader.onerror = (evt) => {
-        console.error(evt)
-      }
-    },
-    onPaste(e) {
-      this.tableLoading = true
-      if (!e.clipboardData || !e.clipboardData.items) return
-      const { items } = e.clipboardData
-      const data = Array.from(items).find((itm) => itm.type === 'text/plain')
-      if (!data) return
-      data.getAsString(this.parseInput)
-    },
-    parseInput(input) {
-      const results = Papa.parse(input)
-      this.buildTableRows(results.data[0], results.data.slice(1))
-    },
     buildTableRows(header, rows) {
       // size limiting - columns
       if (header.length > this.colLimit) {
@@ -284,7 +263,12 @@ export default {
       this.tableLoading = false
     },
     initialize() {
-      this.tableRows = sampleTableData
+      if (this.inputData.length) {
+        this.buildTableRows(this.inputData[0], this.inputData.slice(1))
+      } else {
+        this.tableRows = sampleTableData
+      }
+
       this.setEditedItem({})
     },
 
@@ -354,6 +338,9 @@ export default {
     },
     dialogDelete(val) {
       val || this.closeDelete()
+    },
+    inputData(data) {
+      this.buildTableRows(data[0], data.slice(1))
     }
   },
   filters: {

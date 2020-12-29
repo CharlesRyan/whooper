@@ -10,7 +10,8 @@ export const state = () => ({
   whoopAuthToken: '',
   whoopID: '',
   whoopCreatedAt: '',
-  whoopData: []
+  whoopData: [],
+  inputData: []
 })
 
 export const mutations = {
@@ -32,5 +33,8 @@ export const mutations = {
   },
   setWhoopRawData(state, data) {
     state.whoopData = data
+  },
+  setInputData(state, data) {
+    state.inputData = data
   }
 }

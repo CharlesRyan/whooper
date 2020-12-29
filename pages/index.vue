@@ -2,6 +2,9 @@
   v-app
     .whooper
       Navbar
+      Intro(
+        v-if="page === Pages.INTRO"
+      )
       InputTable(
         v-if="page === Pages.INPUT_TABLE"
       )
@@ -34,6 +37,7 @@ import Graph from '../components/Graph'
 import TimeSeries from '../components/TimeSeries'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
+import Intro from '../components/Intro'
 import Pages from "../pages"
 
 export default {
@@ -85,6 +89,7 @@ export default {
   flex-direction: column;
   align-items: center;
   text-align: center;
+  padding-top: 64px;
 }
 
 .v-application {
