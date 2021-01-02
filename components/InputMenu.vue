@@ -1,38 +1,59 @@
 <template lang="pug">
 .inputs
-  h3 Add Data
-  .inputs__drawer
-    .inputs__options
-      a Paste from a spreadsheet, csv, or tsv
-      a Upload a file (tsv/csv)
-    .inputs__inputs
-      input.text-input(
-        type='text'
-        @paste="onPaste"
-      )
+  //- v-btn.inputs__modal-toggle(
+  //-   color='primary' 
+  //-   @click='toggleDrawer'
+  //-   :class="{open: drawerOpen}"
+  //- ) Add Data
+  //-   span >
+  .inputs__options
+    h3 Upload a file (tsv/csv)
+    label.file 
       input.file-input(
         type='file'
         @change="selectedFile"
       )
+      span.file-custom
+    h3 Or simply copy and paste cells from a spreadsheet, tsv text, or csv text
+    input.text-input(
+      type='textarea'
+      @paste="onPaste"
+      placeholder="Paste here"
+    )
 
-    v-btn.my-10(color='primary' @click='toggleDrawer')  
-      span(v-if="drawerOpen") >
-      span(v-else) <
+    .feedback 
+      .error(
+        v-if="dataError.length"
+      )
+      .success(
+        v-if="rowCount && colCount"
+      ) 
+        p I parsed out {{rowCount}} rows and {{colCount}} columns
+        v-btn(
+          @click="showGraph"
+        )
+
+
+
 </template>
 
 <script>
 import { mapState } from 'vuex'
 import Papa from 'papaparse'
 
+import Pages from '../pages'
+
 export default {
   name: 'InputMenu',
   components: {},
-  props: {},
+  props: {
+    isModal: Boolean
+  },
   data() {
     return {
-      showOptions: false,
-      showInputs: false,
-      drawerOpen: false
+      dataError: '',
+      rowCount: 0,
+      colCount: 0
     }
   },
   mounted() {},
@@ -42,6 +63,9 @@ export default {
     })
   },
   methods: {
+    showGraph(){
+
+    },
     selectedFile(e) {
       this.tableLoading = true
       let file = e.target.files[0]
@@ -65,42 +89,165 @@ export default {
       data.getAsString(this.parseInput)
     },
     parseInput(input) {
-      const results = Papa.parse(input)
-      this.$store.commit('setInputData', results.data)
+      try {
+        const results = Papa.parse(input)
+        console.log(results);
+        this.$store.commit('setInputData', results.data)
+        // display row/col count
+        this.colCount = results.data[0].length
+        this.rowCount = results.data.length
+      } catch(e) {
+        console.log(e);
+        this.dataError = e;
+      }
     },
-    toggleDrawer(){
+    toggleDrawer() {
       this.drawerOpen = !this.drawerOpen
+      if (!this.drawerOpen) this.activeInput = ''
     },
-    emitEntry(event, type){
-        this.$store.commit('setRawData', {type, event})
+    showInput(name) {
+      this.activeInput = name
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+$transition: all 0.3s ease-in-out;
+
 .inputs {
-  &__instructions,
-  &__inputs {
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+
+  &__modal {
+    overflow: hidden;
     display: flex;
-    align-items: center;
   }
 
-  &__inputs {
-    justify-content: space-between;
-  }
+  &__modal-toggle {
+    z-index: 4;
 
-  &__instructions {
-    justify-content: space-around;
-    p {
-      max-width: 240px;
-      width: 33%;
+    span {
+      transition: $transition;
+    }
+
+    &.open {
+      span {
+        transform: rotate(540deg);
+      }
     }
   }
+
+  &__options {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    input {
+      width: 275px;
+
+      &.text-input {
+        padding: 8px 16px;
+        background-color: #fff;
+        color: initial;
+      }
+    }
+  }
+
+  .drawer-item {
+    background-color: #272727;
+  }
+
+  // wtf forms file input
+  .file {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    height: 2.5rem;
+  }
+
+  .file input {
+    min-width: 14rem;
+    margin: 0;
+    filter: alpha(opacity=0);
+    opacity: 0;
+  }
+
+  .file-custom {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 5;
+    height: 2.5rem;
+    padding: 0.5rem 1rem;
+    line-height: 1.5;
+    color: #555;
+    background-color: #fff;
+    border: 0.075rem solid #ddd;
+    border-radius: 4px;
+    box-shadow: inset 0 0.2rem 0.4rem rgba(0, 0, 0, 0.05);
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    text-align: left;
+  }
+
+  .file-custom:after {
+    content: 'Choose file...';
+  }
+
+  .file-custom:before {
+    position: absolute;
+    top: -0.075rem;
+    right: -0.075rem;
+    bottom: -0.075rem;
+    z-index: 6;
+    display: block;
+    content: 'Browse';
+    height: 2.5rem;
+    padding: 0.5rem 1rem;
+    line-height: 1.5;
+    color: #fff;
+    background-color: #2196f3;
+    // border: 0.075rem solid #ddd;
+    border-radius: 0 4px 4px 0;
+  }
+
+  /* Focus */
+  .file input:focus ~ .file-custom {
+    box-shadow: 0 0 0 0.075rem #fff, 0 0 0 0.2rem #0074d9;
+  }
+  // end wtf forms file input
 }
 
 .text-input {
   border: 1px solid white;
-  margin: 20px;
+}
+
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: $transition;
+}
+
+.slide-fade-enter,
+.slide-fade-leave-to {
+  transform: translateX(-100%);
+}
+
+.slide-fade-enter {
+  z-index: 2;
+}
+
+.slide-fade-leave-to {
+  z-index: 1;
+}
+
+input.slide-fade-leave-active {
+  transition: none;
+  opacity: 0;
 }
 </style>

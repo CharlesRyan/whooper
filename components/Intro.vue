@@ -1,7 +1,8 @@
 <template lang="pug">
   .intro
-    p Turn data into insightful graphs
-
+    h1 Whooper
+    h2 Explore relationships in large data sets
+    InputMenu
 </template>
 
 <script>
@@ -11,6 +12,9 @@ import InputMenu from './InputMenu'
 
 export default {
   name: 'Intro',
+  components: {
+    InputMenu
+  },
   data() {
     return {
     }

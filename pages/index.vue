@@ -49,7 +49,8 @@ export default {
     Graph,
     TimeSeries,
     Navbar,
-    Footer
+    Footer,
+    Intro
   },
   data() {
     return {
@@ -64,7 +65,6 @@ export default {
     }
   },
   mounted() {
-    this.$store.commit('setTest', 'test heah')
   },
   computed: {
     ...mapState({

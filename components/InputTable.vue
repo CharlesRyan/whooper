@@ -198,8 +198,8 @@ export default {
           const parsedWhoopData = this.parseWhoopData(data.whoop_raw_data)
           this.$store.commit('setWhoopRawData', parsedWhoopData)
         }
-        // this.$store.commit('setPage', Pages.GRAPH)
-        this.$store.commit('setPage', Pages.TIME_SERIES)
+        this.$store.commit('setPage', Pages.GRAPH)
+        // this.$store.commit('setPage', Pages.TIME_SERIES)
       } catch (e) {
         console.log('data error', e)
       } finally {
