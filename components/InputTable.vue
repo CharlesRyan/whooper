@@ -5,7 +5,7 @@
       v-if="networkLoading"
     )
     .input-table__input-wrap
-      InputMenu
+      InputMenu(:shortLabels="true")
       //- .input-table__instructions
       //-   p Simply copy and paste values from a spreadsheet/csv file
       //-   p OR

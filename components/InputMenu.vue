@@ -7,14 +7,14 @@
   //- ) Add Data
   //-   span >
   .inputs__options
-    h3 Upload a file (tsv/csv)
+    h3 {{ labels.file }}
     label.file 
       input.file-input(
         type='file'
         @change="selectedFile"
       )
       span.file-custom
-    h3 Or simply copy and paste cells from a spreadsheet, tsv text, or csv text
+    h3 {{ labels.text }}
     input.text-input(
       type='textarea'
       @paste="onPaste"
@@ -47,7 +47,8 @@ export default {
   name: 'InputMenu',
   components: {},
   props: {
-    isModal: Boolean
+    isModal: Boolean,
+    shortLabels: Boolean
   },
   data() {
     return {
@@ -60,12 +61,20 @@ export default {
   computed: {
     ...mapState({
       inputData: (state) => state.inputData
-    })
+    }),
+    labels() {
+      const file = this.shortLabels ? 'Upload' : 'Upload a file (tsv/csv)'
+      const text = this.shortLabels
+        ? 'Paste'
+        : 'Paste cells from a spreadsheet or tsv/csv formatted text'
+      return {
+        file,
+        text
+      }
+    }
   },
   methods: {
-    showGraph(){
-
-    },
+    showGraph() {},
     selectedFile(e) {
       this.tableLoading = true
       let file = e.target.files[0]
@@ -91,14 +100,14 @@ export default {
     parseInput(input) {
       try {
         const results = Papa.parse(input)
-        console.log(results);
+        console.log(results)
         this.$store.commit('setInputData', results.data)
         // display row/col count
         this.colCount = results.data[0].length
         this.rowCount = results.data.length
-      } catch(e) {
-        console.log(e);
-        this.dataError = e;
+      } catch (e) {
+        console.log(e)
+        this.dataError = e
       }
     },
     toggleDrawer() {
@@ -119,6 +128,7 @@ $transition: all 0.3s ease-in-out;
   margin: 20px 0;
   display: flex;
   align-items: center;
+  justify-content: center;
 
   &__modal {
     overflow: hidden;
@@ -152,6 +162,7 @@ $transition: all 0.3s ease-in-out;
         padding: 8px 16px;
         background-color: #fff;
         color: initial;
+        border-radius: 4px;
       }
     }
   }

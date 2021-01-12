@@ -1,12 +1,17 @@
 <template lang="pug">
   .intro
     h1 Whooper
-    h2 Explore relationships in large data sets
-    InputMenu
+    h2 Explore relationships in large data sets with an interactive graph
+    InputMenu(:shortLabels="false")
+    v-btn(
+      @click="() => handleClick('INPUT_TABLE')"
+    ) Use sample data
 </template>
 
 <script>
 import { mapState } from 'vuex'
+
+import Pages from '../pages'
 
 import InputMenu from './InputMenu'
 
