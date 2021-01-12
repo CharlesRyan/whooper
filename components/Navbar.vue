@@ -4,28 +4,28 @@
     v-app-bar(
         dark
       )
-        v-app-bar-nav-icon( @click.stop="drawer = !drawer")
-    v-navigation-drawer(
-      v-model="drawer"
-      absolute
-      bottom
-      temporary
-    )
       v-list(
         nav
         dense
+        flat
       )
         v-list-item-group(
-          v-model="group"
+          v-model="selectedItem"
           active-class="parent-active-class"
         )
           v-list-item(
             v-for="item in pageItems"
             :key="item.name"
             @click.stop="handleClick(item.key)"
-            :class="{'active v-list-item--active': item.name === page}"
           )
             v-list-item-title {{ item.name }}
+    //-     v-app-bar-nav-icon( @click.stop="drawer = !drawer")
+    //- v-navigation-drawer(
+    //-   v-model="drawer"
+    //-   absolute
+    //-   bottom
+    //-   temporary
+    //- )
 
 
 </template>
@@ -35,11 +35,11 @@ import { mapState } from 'vuex'
 import Pages from '../pages'
 
 export default {
-  name: 'Loader',
+  name: 'Navbar',
   data() {
     return {
       drawer: false,
-      group: false
+      selectedItem: 0
     }
   },
   computed: {
@@ -60,6 +60,19 @@ export default {
   methods: {
     handleClick(key) {
       this.$store.commit('setPage', Pages[key])
+    },
+    selectPageItem(page) {
+      this.pageItems.forEach((pageItem, i) => {
+        if (pageItem.key === page) this.selectedItem = i
+      })
+    }
+  },
+  mounted() {
+    this.selectPageItem(this.page)
+  },
+  watch: {
+    page(newPage) {
+      this.selectPageItem(newPage)
     }
   }
 }
@@ -73,9 +86,20 @@ export default {
   width: 100%;
   z-index: 100;
 
-  .v-navigation-drawer--open {
-    height: auto !important;
-    top: 64px !important;
+  .v-list {
+    background: $bg-secondary;
+  }
+
+  .v-list-item-group {
+    display: flex;
+  }
+
+  .v-list-item {
+    margin: 0 20px !important;
+
+    &--active {
+      color: $primary;
+    }
   }
 }
 </style>

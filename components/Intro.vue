@@ -2,10 +2,12 @@
   .intro
     h1 Whooper
     h2 Explore relationships in large data sets with an interactive graph
-    InputMenu(:shortLabels="false")
-    v-btn(
-      @click="() => handleClick('INPUT_TABLE')"
-    ) Use sample data
+    .menu-wrapper
+      InputMenu(:shortLabels="false")
+      v-btn(
+        color='primary'
+        @click="() => handleClick('INPUT_TABLE')"
+      ) Use sample data
 </template>
 
 <script>
@@ -41,6 +43,9 @@ export default {
 
 <style lang="scss" scoped>
 .intro {
-
+  .menu-wrapper {
+    background: $bg-secondary;
+    padding: 1px 20px 20px 20px;
+  }
 }
 </style>
