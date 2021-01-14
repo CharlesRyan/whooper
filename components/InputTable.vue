@@ -5,20 +5,7 @@
       v-if="networkLoading"
     )
     .input-table__input-wrap
-      InputMenu(:shortLabels="true")
-      //- .input-table__instructions
-      //-   p Simply copy and paste values from a spreadsheet/csv file
-      //-   p OR
-      //-   p Upload the file itself
-      //- .input-table__inputs
-      //-   input.text-input(
-      //-     type='text'
-      //-     @paste='onPaste'
-      //-   )
-      //-   input.file-input(
-      //-     type='file'
-      //-     @change="selectedFile"
-      //-   )
+      InputMenu(:compact="true")
     v-data-table.elevation-1(:headers='headers' :items='tableRows' :loading='tableLoading')
       template(v-slot:top)
         v-toolbar(flat)
@@ -27,7 +14,7 @@
           v-spacer
           v-dialog(v-model='dialog' max-width='500px')
             template(v-slot:activator='{ on, attrs }')
-              v-btn.mb-2(color='primary' v-bind='attrs' v-on='on') New Row
+              v-btn.mb-2(color='primary' outlined v-bind='attrs' v-on='on') New Row
             v-card
               v-card-title
                 span.headline {{ formTitle }}

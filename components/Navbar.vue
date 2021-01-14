@@ -16,17 +16,10 @@
           v-list-item(
             v-for="item in pageItems"
             :key="item.name"
-            @click.stop="handleClick(item.key)"
+            :class="{disabled: item.disabled}"
+            @click.stop="handleClick(item)"
           )
             v-list-item-title {{ item.name }}
-    //-     v-app-bar-nav-icon( @click.stop="drawer = !drawer")
-    //- v-navigation-drawer(
-    //-   v-model="drawer"
-    //-   absolute
-    //-   bottom
-    //-   temporary
-    //- )
-
 
 </template>
 
@@ -46,24 +39,33 @@ export default {
     ...mapState({
       accentColor: (state) => state.accentColor,
       accentColorDark: (state) => state.accentColorDark,
-      page: (state) => state.page
+      page: (state) => state.page,
+      inputData: (state) => state.inputData,
+      correlationData: (state) => state.correlationData,
     }),
     pageItems() {
       return Object.keys(Pages).map((k) => {
+        const disabled = Pages[k] === Pages.GRAPH && !(this.inputData.length || this.correlationData.length)
+
         return {
           key: k,
-          name: Pages[k]
+          name: Pages[k],
+          disabled
         }
       })
     }
   },
   methods: {
-    handleClick(key) {
-      this.$store.commit('setPage', Pages[key])
+    handleClick({ disabled, key }) {
+      console.log(disabled);
+      if (!disabled) this.$store.commit('setPage', Pages[key])
     },
     selectPageItem(page) {
+      console.log('sel', page);
       this.pageItems.forEach((pageItem, i) => {
-        if (pageItem.key === page) this.selectedItem = i
+        if (pageItem.name === page) {
+          this.selectedItem = i
+        }
       })
     }
   },
@@ -72,6 +74,7 @@ export default {
   },
   watch: {
     page(newPage) {
+      console.log('change');
       this.selectPageItem(newPage)
     }
   }
@@ -99,6 +102,11 @@ export default {
 
     &--active {
       color: $primary;
+    }
+
+    &.disabled {
+      opacity: 0.5;
+      cursor: default;
     }
   }
 }

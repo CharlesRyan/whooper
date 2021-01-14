@@ -1,12 +1,8 @@
 <template lang="pug">
 .inputs
-  //- v-btn.inputs__modal-toggle(
-  //-   color='primary' 
-  //-   @click='toggleDrawer'
-  //-   :class="{open: drawerOpen}"
-  //- ) Add Data
-  //-   span >
-  .inputs__options
+  .inputs__options(
+    :class="{compact}"
+  )
     h3 {{ labels.file }}
     label.file 
       input.file-input(
@@ -48,7 +44,7 @@ export default {
   components: {},
   props: {
     isModal: Boolean,
-    shortLabels: Boolean
+    compact: Boolean
   },
   data() {
     return {
@@ -63,8 +59,8 @@ export default {
       inputData: (state) => state.inputData
     }),
     labels() {
-      const file = this.shortLabels ? 'Upload' : 'Upload a file (tsv/csv)'
-      const text = this.shortLabels
+      const file = this.compact ? 'Upload' : 'Upload a file (tsv/csv)'
+      const text = this.compact
         ? 'Paste'
         : 'Paste cells from a spreadsheet or tsv/csv formatted text'
       return {

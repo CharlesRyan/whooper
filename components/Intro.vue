@@ -3,7 +3,7 @@
     h1 Whooper
     h2 Explore relationships in large data sets with an interactive graph
     .menu-wrapper
-      InputMenu(:shortLabels="false")
+      InputMenu(:compact="false")
       v-btn(
         color='primary'
         @click="() => handleClick('INPUT_TABLE')"

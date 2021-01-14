@@ -297,7 +297,7 @@ export default {
           active: true
         }
       })
-    },
+    }
   },
   watch: {
     nodePickerActive: function(newVal, oldVal) {
@@ -336,8 +336,13 @@ export default {
   }
 
   .node-label {
-    font-size: 0.8rem;
-    letter-spacing: .3px
+    font-size: 0.9rem;
+    letter-spacing: 0.4px;
+    fill: #fff;
+  }
+
+  .node {
+    fill: #cccccc;
   }
 
   &__options {
@@ -361,7 +366,7 @@ export default {
   .v-expansion-panels {
     position: absolute;
     top: 84px;
-    right: 20px;
+    left: 20px;
     z-index: 10;
     transition: all ease 0.3s;
     max-width: 400px;
