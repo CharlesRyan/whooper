@@ -57,11 +57,15 @@ export default {
   },
   methods: {
     handleClick({ disabled, key }) {
-      console.log(disabled);
-      if (!disabled) this.$store.commit('setPage', Pages[key])
+      if (!disabled) {
+        this.$store.commit('setPage', Pages[key])
+      } else {
+        setTimeout(() => {
+          this.selectPageItem(this.page)
+        }, 10)
+      }
     },
     selectPageItem(page) {
-      console.log('sel', page);
       this.pageItems.forEach((pageItem, i) => {
         if (pageItem.name === page) {
           this.selectedItem = i
@@ -74,7 +78,6 @@ export default {
   },
   watch: {
     page(newPage) {
-      console.log('change');
       this.selectPageItem(newPage)
     }
   }
@@ -100,7 +103,7 @@ export default {
   .v-list-item {
     margin: 0 20px !important;
 
-    &--active {
+    &--active:not(.disabled) {
       color: $primary;
     }
 

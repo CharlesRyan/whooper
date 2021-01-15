@@ -3,14 +3,14 @@
   .inputs__options(
     :class="{compact}"
   )
-    h3 {{ labels.file }}
+    h3.inputs__options-label {{ labels.file }}
     label.file 
       input.file-input(
         type='file'
         @change="selectedFile"
       )
       span.file-custom
-    h3 {{ labels.text }}
+    h3.inputs__options-label {{ labels.text }}
     input.text-input(
       type='textarea'
       @paste="onPaste"
@@ -145,6 +145,10 @@ $transition: all 0.3s ease-in-out;
     }
   }
 
+  &__options-label {
+    margin-bottom: 8px;
+  }
+
   &__options {
     display: flex;
     align-items: center;
@@ -173,6 +177,7 @@ $transition: all 0.3s ease-in-out;
     display: inline-block;
     cursor: pointer;
     height: 2.5rem;
+    margin-bottom: 20px;
   }
 
   .file input {

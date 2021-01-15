@@ -1,7 +1,8 @@
 <template lang="pug">
   .intro
-    h1 Whooper
-    h2 Explore relationships in large data sets with an interactive graph
+    .header-wrapper
+      h1 Whooper
+      h2 Explore relationships in large data sets with an interactive graph
     .menu-wrapper
       InputMenu(:compact="false")
       v-btn(
@@ -43,9 +44,14 @@ export default {
 
 <style lang="scss" scoped>
 .intro {
+
+  .header-wrapper {
+      margin: 40px 0 60px;
+  }
+
   .menu-wrapper {
     background: $bg-secondary;
-    padding: 1px 20px 20px 20px;
+    padding: 1px 20px 25px 20px;
   }
 }
 </style>
