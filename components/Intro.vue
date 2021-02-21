@@ -2,13 +2,14 @@
   .intro
     .header-wrapper
       h1 Whooper
-      h2 Explore relationships in large data sets with an interactive graph
+      h2 A tool for exploring relationships in large data sets 
+      p Generate an interactive graph out of a spreadsheet or CSV file
     .menu-wrapper
       InputMenu(:compact="false")
       v-btn(
         color='primary'
         @click="() => handleClick('INPUT_TABLE')"
-      ) Use sample data
+      ) Just use sample data
 </template>
 
 <script>

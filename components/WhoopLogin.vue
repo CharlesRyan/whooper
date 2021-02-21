@@ -1,37 +1,49 @@
 <template lang="pug">
   .login.align-center.mx-10
-    h3(
+    v-btn(
       :class="{cta: ctaState}"
       @click="showForm = !showForm"
       v-if="!loggedInState"
-    ) Log in with Whoop
+      type="submit"
+      color="primary"
+    ) {{ ctaText }}
     h3(
       v-if="loggedInState"
-    ) Using data from Whoop account- {{whoopEmail}}
-    v-form(v-model="valid" @submit.prevent="handleSubmit" v-if="formState")
-      v-row
-        v-col()
-          v-text-field(
-            v-model="username"
-            label="Whoop Account Email"
-            :rules="usernameRules"
-            type="email"
-            required
-          )
-          v-text-field(
-            v-model="password"
-            label="Password"
-            :rules="passwordRules"
-            type="password"
-            required
-          )
-          v-row.mt-6.justify-space-around
-            v-btn.mb-4(
-              :disabled="!valid"
-              type="submit"
-              color="primary"
-              large
-            ) Log In
+    ) Account connected- {{whoopEmail}}
+
+    v-dialog(
+      width="500"
+      v-model="showForm"
+      light
+    )
+      v-form.login__form(
+        v-model="valid" 
+        @submit.prevent="handleSubmit" 
+        v-if="formState"
+      )
+        v-row
+          v-col()
+            v-text-field(
+              v-model="username"
+              label="Whoop Account Email"
+              :rules="usernameRules"
+              type="email"
+              required
+            )
+            v-text-field(
+              v-model="password"
+              label="Password"
+              :rules="passwordRules"
+              type="password"
+              required
+            )
+            v-row.mt-6.justify-space-around
+              v-btn.mb-4(
+                :disabled="!valid"
+                type="submit"
+                color="primary"
+                large
+              ) Log In
 
 </template>
 
@@ -45,6 +57,9 @@ export default {
   components: {
     Footer
   },
+  props: {
+    ctaText: String
+  },
   data() {
     return {
       username: '',
@@ -52,7 +67,7 @@ export default {
       valid: false,
       showForm: false,
       usernameRules: [(v) => !!v || 'Email is required'],
-      passwordRules: [(v) => !!v || 'Password is required']
+      passwordRules: [(v) => !!v || 'Password is required'],
     }
   },
   mounted() {},
@@ -75,14 +90,27 @@ export default {
   },
   methods: {
     async handleSubmit() {
-      const authResponse = await this.authenticate()
-      const whoopData = {
-        whoopEmail: this.username,
-        whoopID: authResponse.user.id,
-        whoopCreatedAt: authResponse.user.profile.createdAt,
-        whoopAuthToken: authResponse.access_token
+      try {
+        const authResponse = await this.authenticate()
+        const whoopData = {
+          whoopEmail: this.username,
+          whoopID: authResponse.user.id,
+          whoopCreatedAt: authResponse.user.profile.createdAt,
+          whoopAuthToken: authResponse.access_token
+        }
+        this.showForm = false
+        this.$store.commit('setWhoopAuthData', whoopData)
+      } catch (e) {
+        // force error messages upon failure
+        this.usernameRules = ['']
+        this.passwordRules = ['Login failed. Double check your info?']
+        // reset to normal validation
+        setTimeout(() => {
+          this.usernameRules = [(v) => !!v || 'Email is required']
+          this.passwordRules = [(v) => !!v || 'Password is required']
+        }, 5000)
+        console.log('handleSubmit fail', e)
       }
-      this.$store.commit('setWhoopAuthData', whoopData)
     },
     async fetchUserData() {
       const authResponse = await this.authenticate()
@@ -148,7 +176,17 @@ export default {
   margin: auto;
   max-width: 500px;
 
-  h1, h3 {
+  &__form {
+    background-color: #fff;
+    padding: 20px;
+  }
+
+  .error-text {
+    color: $error;
+  }
+
+  h1,
+  h3 {
     margin-bottom: 16px;
 
     &.cta {

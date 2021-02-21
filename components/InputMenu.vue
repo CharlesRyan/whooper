@@ -10,12 +10,24 @@
         @change="selectedFile"
       )
       span.file-custom
+
+    hr(v-if="!compact")
+
     h3.inputs__options-label {{ labels.text }}
     input.text-input(
       type='textarea'
       @paste="onPaste"
       placeholder="Paste here"
     )
+
+    hr(v-if="!compact")
+
+    h3.inputs__options-label Connect your Whoop account
+    WhoopLogin(
+      ctaText="Log In"
+    )
+
+    hr(v-if="!compact")
 
     .feedback 
       .error(
@@ -37,11 +49,15 @@
 import { mapState } from 'vuex'
 import Papa from 'papaparse'
 
+import WhoopLogin from './WhoopLogin'
+
 import Pages from '../pages'
 
 export default {
   name: 'InputMenu',
-  components: {},
+  components: {
+    WhoopLogin
+  },
   props: {
     isModal: Boolean,
     compact: Boolean
@@ -125,6 +141,13 @@ $transition: all 0.3s ease-in-out;
   display: flex;
   align-items: center;
   justify-content: center;
+
+
+  hr {
+    width: 100%;
+    margin: 20px 0;
+    opacity: .5;
+  }
 
   &__modal {
     overflow: hidden;
