@@ -45,7 +45,9 @@ export default {
     }),
     pageItems() {
       return Object.keys(Pages).map((k) => {
-        const disabled = Pages[k] === Pages.GRAPH && !(this.inputData.length || this.correlationData.length)
+        let disabled = false
+        if (Pages[k] === Pages.GRAPH && !(this.inputData.length || this.correlationData.length)) disabled = true
+        if (Pages[k] === Pages.INPUT_TABLE && !!this.inputData && !this.inputData.length) disabled = true
 
         return {
           key: k,

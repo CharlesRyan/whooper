@@ -1,5 +1,7 @@
 <template lang="pug">
-.inputs
+.inputs(
+    :class="compact ? 'compact' : 'efflusive'"
+  )
   .inputs__options(
     :class="{compact}"
   )
@@ -142,10 +144,13 @@ $transition: all 0.3s ease-in-out;
   align-items: center;
   justify-content: center;
 
+&.efflusive {
+  margin: 0;
+}
 
   hr {
     width: 100%;
-    margin: 20px 0;
+    margin: 30px 0;
     opacity: .5;
   }
 
@@ -200,7 +205,6 @@ $transition: all 0.3s ease-in-out;
     display: inline-block;
     cursor: pointer;
     height: 2.5rem;
-    margin-bottom: 20px;
   }
 
   .file input {

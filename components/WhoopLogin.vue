@@ -67,7 +67,7 @@ export default {
       valid: false,
       showForm: false,
       usernameRules: [(v) => !!v || 'Email is required'],
-      passwordRules: [(v) => !!v || 'Password is required'],
+      passwordRules: [(v) => !!v || 'Password is required']
     }
   },
   mounted() {},
@@ -150,17 +150,12 @@ export default {
         username: this.username
       }
 
-      try {
-        const authResponse = await axios.post(
-          'https://api-7.whoop.com/oauth/token',
-          authRequestData
-        )
-        console.log('authResponse', authResponse)
-        return authResponse.data
-      } catch (e) {
-        console.log('auth error', e)
-        return null
-      }
+      const authResponse = await axios.post(
+        'https://api-7.whoop.com/oauth/token',
+        authRequestData
+      )
+      console.log('authResponse', authResponse)
+      return authResponse.data
     }
   }
 }
@@ -185,8 +180,7 @@ export default {
     color: $error;
   }
 
-  h1,
-  h3 {
+  h1 {
     margin-bottom: 16px;
 
     &.cta {
