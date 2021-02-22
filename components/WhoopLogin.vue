@@ -90,8 +90,17 @@ export default {
   },
   methods: {
     async handleSubmit() {
+      await this.fetchAuthData()
+      const rawData = await this.getWhoopData(this.whoopID, this.whoopAuthToken)
+      const parsedData = this.parseWhoopData(rawData)
+      this.$store.commit('setWhoopRawData', parsedData)
+    },
+    async fetchAuthData() {
       try {
-        const authResponse = await this.authenticate()
+        const authResponse = await this.authenticate(
+          this.username,
+          this.password
+        )
         const whoopData = {
           whoopEmail: this.username,
           whoopID: authResponse.user.id,
@@ -112,16 +121,64 @@ export default {
         console.log('handleSubmit fail', e)
       }
     },
-    async fetchUserData() {
-      const authResponse = await this.authenticate()
-      const userData = await this.getData(
-        authResponse.user.id,
-        authResponse.access_token
-      )
-      console.log('fud', userData)
-      this.$emit('setData', userData)
+    parseWhoopData(rawData) {
+      const interesting_columns = [
+        'day',
+        'sleep.qualityDuration',
+        'sleep.inBedDuration',
+        'sleep.score',
+        'strain.averageHeartRate',
+        'strain.score',
+        'strain.workouts.length',
+        'recovery.heartRateVariabilityRmssd',
+        'recovery.restingHeartRate',
+        'recovery.score'
+      ]
+
+      return rawData.map((item) => {
+        const { days, sleep, strain, recovery } = item
+        const nightSleep = sleep.sleeps.length
+          ? sleep.sleeps.filter((s) => !s.isNap)[0]
+          : null
+        const noData = 'No Data'
+
+        return {
+          day: days[0],
+          sleepQualityDuration: nightSleep
+            ? this.parseMs(nightSleep.qualityDuration)
+            : noData,
+          sleepinBedDuration: nightSleep
+            ? this.parseMs(nightSleep.inBedDuration)
+            : noData,
+          sleepScore: sleep.score || noData,
+          averageHeartRate: strain.averageHeartRate || noData,
+          strainScore: strain.score ? strain.score.toFixed(1) : noData,
+          activityCount: strain.workouts.length,
+          HRV:
+            recovery && recovery.heartRateVariabilityRmssd
+              ? Math.round(recovery.heartRateVariabilityRmssd * 1000)
+              : noData,
+          restingHeartRate:
+            recovery && recovery.restingHeartRate
+              ? recovery.restingHeartRate
+              : noData,
+          recoveryScore: recovery && recovery.score ? recovery.score : noData
+        }
+      })
     },
-    async getData(id, token) {
+    parseMs(ms) {
+      // 1- Convert to seconds:
+      let seconds = ms / 1000
+      // 2- Extract hours:
+      const hours = parseInt(seconds / 3600) // 3,600 seconds in 1 hour
+      seconds = seconds % 3600 // seconds remaining after extracting hours
+      // 3- Extract minutes:
+      const minutes = parseInt(seconds / 60) // 60 seconds in 1 minute
+      // 4- Keep only seconds not extracted to minutes:
+      seconds = seconds % 60
+      return `${hours}:${minutes}`
+    },
+    async getWhoopData(id, token) {
       const url = `https://api-7.whoop.com/users/${id}/cycles`
 
       const params = {
@@ -142,19 +199,19 @@ export default {
         return null
       }
     },
-    async authenticate() {
+    async authenticate(username, password) {
       const authRequestData = {
         grant_type: 'password',
         issueRefresh: false,
-        password: this.password,
-        username: this.username
+        password,
+        username
       }
 
       const authResponse = await axios.post(
         'https://api-7.whoop.com/oauth/token',
         authRequestData
       )
-      console.log('authResponse', authResponse)
+      // console.log('authResponse', authResponse)
       return authResponse.data
     }
   }

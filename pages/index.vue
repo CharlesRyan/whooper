@@ -18,10 +18,6 @@
         v-if="showDataTable"
         :userData="userData"
       )
-      WhoopLogin(
-        v-if="showWhoopLogin"
-        @setData="setData"
-      )
     
     Footer
 </template>
@@ -38,7 +34,7 @@ import TimeSeries from '../components/TimeSeries'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import Intro from '../components/Intro'
-import Pages from "../pages"
+import Pages from '../pages'
 
 export default {
   components: {
@@ -64,18 +60,13 @@ export default {
       Pages
     }
   },
-  mounted() {
-  },
+  mounted() {},
   computed: {
     ...mapState({
       page: (state) => state.page
     })
   },
-  methods: {
-    setData(data) {
-      this.userData = data
-    }
-  }
+  methods: {}
 }
 </script>
 

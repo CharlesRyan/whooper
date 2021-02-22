@@ -26,7 +26,7 @@
 
     h3.inputs__options-label Connect your Whoop account
     WhoopLogin(
-      ctaText="Log In"
+      :ctaText="whoopLabel"
     )
 
     hr(v-if="!compact")
@@ -52,8 +52,6 @@ import { mapState } from 'vuex'
 import Papa from 'papaparse'
 
 import WhoopLogin from './WhoopLogin'
-
-import Pages from '../pages'
 
 export default {
   name: 'InputMenu',
@@ -85,6 +83,9 @@ export default {
         file,
         text
       }
+    },
+    whoopLabel() {
+      return this.compact ? 'Whoop Login' : 'Log In'
     }
   },
   methods: {

@@ -23,6 +23,7 @@
 import { mapState } from 'vuex'
 
 import Pages from '../pages'
+import sampleTableData from '../assets/js/sampleTableData'
 
 import InputMenu from './InputMenu'
 
@@ -49,7 +50,7 @@ export default {
   },
   methods: {
     setSampleData() {
-        this.$store.commit('setInputData', results.data)
+        this.$store.commit('setInputData', sampleTableData)
     },
     showTable(){
       this.$store.commit('setPage', Pages.INPUT_TABLE)

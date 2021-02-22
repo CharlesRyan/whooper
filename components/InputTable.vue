@@ -14,7 +14,7 @@
           v-spacer
           v-dialog(v-model='dialog' max-width='500px')
             template(v-slot:activator='{ on, attrs }')
-              v-btn.mb-2(color='primary' outlined v-bind='attrs' v-on='on') New Row
+              v-btn.mr-5(color='primary' outlined v-bind='attrs' v-on='on') New Row
             v-card
               v-card-title
                 span.headline {{ formTitle }}
@@ -28,6 +28,10 @@
                 v-spacer
                 v-btn(color='blue darken-1' text='' @click='close') Cancel
                 v-btn(color='blue darken-1' text='' @click='save') Save
+          v-btn(
+            color='primary' 
+            @click='analyze'
+          ) Generate Chart >
           v-dialog(v-model='dialogDelete' max-width='500px')
             v-card
               v-card-title.headline Are you sure you want to delete this item?
@@ -41,11 +45,7 @@
         v-icon(small='' @click='deleteItem(item)') mdi-delete
       template(v-slot:no-data)
         v-btn(color='primary' @click='initialize') Reset
-    v-btn.my-10(color='primary' @click='analyze') Generate Chart
 
-    .input-table__whoop-login
-      WhoopLogin
-      
   v-snackbar(
     v-model="colSnackbar"
     timeout="-1"
@@ -80,7 +80,6 @@
 import axios from 'axios'
 import { mapState } from 'vuex'
 
-import sampleTableData from '../assets/js/sampleTableData'
 import sampleResponse from '../assets/js/testResponse'
 
 import Pages from '../pages'
@@ -128,7 +127,6 @@ export default {
   mounted() {
     this.initialize()
     this.tableLoading = false
-    console.log(sampleResponse)
   },
   computed: {
     ...mapState({
@@ -178,15 +176,18 @@ export default {
         const { data } = this.prod
           ? await axios.post(this.endpointSLS, reqData)
           : sampleResponse
+
         console.log('analysis data', data)
+
         const corrDataArr = this.parseCorrelations(data.correlations)
+
         this.$store.commit('setCorrelationData', corrDataArr)
+
         if (data.hasOwnProperty('whoop_raw_data')) {
           const parsedWhoopData = this.parseWhoopData(data.whoop_raw_data)
           this.$store.commit('setWhoopRawData', parsedWhoopData)
         }
         this.$store.commit('setPage', Pages.GRAPH)
-        // this.$store.commit('setPage', Pages.TIME_SERIES)
       } catch (e) {
         console.log('data error', e)
       } finally {
@@ -250,15 +251,23 @@ export default {
       this.tableLoading = false
     },
     initialize() {
-      if (this.inputData.length) {
+      if (this.inputData.length > 2) {
+        // Indicates it's sample data. Processed input would be an array of two arrays
+        this.tableRows = this.inputData
+        this.tableLoading = false
+      } else if (this.inputData.length) {
         this.buildTableRows(this.inputData[0], this.inputData.slice(1))
-      } else {
-        this.tableRows = sampleTableData
       }
+
+      this.appendWhoopData()
 
       this.setEditedItem({})
     },
-
+    appendWhoopData() {
+      if (this.whoopData.length) {
+        this.tableRows = [...this.tableRows, ...this.whoopData]
+      }
+    },
     editItem(item) {
       this.editedIndex = this.tableRows.indexOf(item)
       this.setEditedItem(item)
@@ -328,6 +337,7 @@ export default {
     },
     inputData(data) {
       this.buildTableRows(data[0], data.slice(1))
+      this.appendWhoopData()
     }
   },
   filters: {
@@ -365,7 +375,7 @@ export default {
 
 .input-table {
   max-width: 95vw;
-  overflow-x: scroll;
+  // overflow-x: scroll;
 
   .v-data-table__wrapper {
     overflow-x: scroll;

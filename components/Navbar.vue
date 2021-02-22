@@ -42,12 +42,16 @@ export default {
       page: (state) => state.page,
       inputData: (state) => state.inputData,
       correlationData: (state) => state.correlationData,
+      whoopData: (state) => state.whoopData,
     }),
     pageItems() {
+      const disableTable = (!!this.inputData && !this.inputData.length) && (!!this.whoopData && !this.whoopData.length)  
+      const disableGraph = !(this.inputData.length || this.correlationData.length)
+
       return Object.keys(Pages).map((k) => {
         let disabled = false
-        if (Pages[k] === Pages.GRAPH && !(this.inputData.length || this.correlationData.length)) disabled = true
-        if (Pages[k] === Pages.INPUT_TABLE && !!this.inputData && !this.inputData.length) disabled = true
+        if (Pages[k] === Pages.GRAPH && disableGraph) disabled = true
+        if (Pages[k] === Pages.INPUT_TABLE && disableTable) disabled = true
 
         return {
           key: k,
