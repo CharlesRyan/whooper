@@ -1,11 +1,17 @@
 <template lang="pug">
 .inputs(
-    :class="compact ? 'compact' : 'efflusive'"
+    :class="isModal ? 'is-modal' : 'embedded'"
   )
-  .inputs__options(
-    :class="{compact}"
-  )
+  .inputs__options
+    //- .inputs__overwrite-wrap(v-if="isModal" mandatory)
+    //-   v-radio-group(v-model="shouldOverwrite" light)
+    //-     v-radio(label="Add new data to current data" :value='false')
+    //-     v-radio(label="Replace current data with new data" :value='true')
+
+    //- hr(v-if="isModal")
+
     h3.inputs__options-label {{ labels.file }}
+    p(v-if="isModal") (Will replace all non-Whoop data)*
     label.file 
       input.file-input(
         type='file'
@@ -13,23 +19,24 @@
       )
       span.file-custom
 
-    hr(v-if="!compact")
+    hr
 
     h3.inputs__options-label {{ labels.text }}
+    p(v-if="isModal") (Will replace all non-Whoop data)*
     input.text-input(
       type='textarea'
       @paste="onPaste"
       placeholder="Paste here"
     )
 
-    hr(v-if="!compact")
+    hr
 
     h3.inputs__options-label Connect your Whoop account
     WhoopLogin(
       :ctaText="whoopLabel"
     )
 
-    hr(v-if="!compact")
+    hr(v-if="!isModal")
 
     .feedback 
       .error(
@@ -38,11 +45,9 @@
       .success(
         v-if="rowCount && colCount"
       ) 
-        p I parsed out {{rowCount}} rows and {{colCount}} columns
-        v-btn(
-          @click="showGraph"
-        )
+        p {{rowCount}} rows and {{colCount}} columns processed
 
+    sub.disclaimer(v-if="isModal") * Data merging will be available in a later version
 
 
 </template>
@@ -66,7 +71,8 @@ export default {
     return {
       dataError: '',
       rowCount: 0,
-      colCount: 0
+      colCount: 0,
+      shouldOverwrite: true
     }
   },
   mounted() {},
@@ -75,21 +81,19 @@ export default {
       inputData: (state) => state.inputData
     }),
     labels() {
-      const file = this.compact ? 'Upload' : 'Upload a file (tsv/csv)'
-      const text = this.compact
-        ? 'Paste'
-        : 'Paste cells from a spreadsheet or tsv/csv formatted text'
+      const file = 'Upload a file (tsv/csv)'
+      const text = 'Paste cells from a spreadsheet or tsv/csv formatted text'
+      
       return {
         file,
         text
       }
     },
     whoopLabel() {
-      return this.compact ? 'Whoop Login' : 'Log In'
+      return 'Log In'
     }
   },
   methods: {
-    showGraph() {},
     selectedFile(e) {
       this.tableLoading = true
       let file = e.target.files[0]
@@ -115,8 +119,12 @@ export default {
     parseInput(input) {
       try {
         const results = Papa.parse(input)
-        console.log(results)
-        this.$store.commit('setInputData', results.data)
+        console.log('parseInput results', results)
+        const newInputData = this.shouldOverwrite
+          ? results.data
+          : this.consolidateData(this.inputData, results.data)
+
+        this.$store.commit('setInputData', newInputData)
         // display row/col count
         this.colCount = results.data[0].length
         this.rowCount = results.data.length
@@ -125,9 +133,15 @@ export default {
         this.dataError = e
       }
     },
-    toggleDrawer() {
-      this.drawerOpen = !this.drawerOpen
-      if (!this.drawerOpen) this.activeInput = ''
+    consolidateData(data1, data2) {
+      // consolidate headers
+      // align based on day/date if both have one form of it
+        // tolowercase, check indexOf day & date
+        // using the index, loop through all rows and convert date strings to date objs for easy comparisons
+        // sort by dates, just in case
+        // allow for gaps in one or the other
+        // start concatting at the first matching date present in both- grab first 
+      // populate empty spots with null when one has more rows than the other
     },
     showInput(name) {
       this.activeInput = name
@@ -144,15 +158,43 @@ $transition: all 0.3s ease-in-out;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 
-&.efflusive {
-  margin: 0;
-}
+  // input table modal
+  &.is-modal {
+    background-color: #fff;
+    color: $bg;
+    padding: 40px 20px 50px;
+
+    input.text-input {
+      border: 0.075rem solid #ddd;
+    }
+  }
+
+  &.embedded {
+    margin: 0;
+  }
+
+  &__overwrite-wrap {
+    display: flex;
+    align-items: center;
+
+    ::v-deep .v-label {
+      color: $bg !important;
+    }
+  }
 
   hr {
     width: 100%;
     margin: 30px 0;
-    opacity: .5;
+    opacity: 0.5;
+  }
+
+  .disclaimer {
+    position: absolute;
+    bottom: 12px;
+    left: 0;
+    padding: 0 10px;
   }
 
   &__modal {

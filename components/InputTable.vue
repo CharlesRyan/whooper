@@ -5,7 +5,8 @@
       v-if="networkLoading"
     )
     .input-table__input-wrap
-      InputMenu(:compact="true")
+      v-dialog(v-model='showDataImport' width='585')
+        InputMenu(:isModal="true")
     v-data-table.elevation-1(:headers='headers' :items='tableRows' :loading='tableLoading')
       template(v-slot:top)
         v-toolbar(flat)
@@ -28,6 +29,10 @@
                 v-spacer
                 v-btn(color='blue darken-1' text='' @click='close') Cancel
                 v-btn(color='blue darken-1' text='' @click='save') Save
+          v-btn.mr-5(
+            color='primary' 
+            @click='showDataImport = true'
+          ) Import Data
           v-btn(
             color='primary' 
             @click='analyze'
@@ -120,6 +125,7 @@ export default {
       rowLimit: 10000,
       colSnackbar: false,
       rowSnackbar: false,
+      showDataImport: false,
       prod: false
       // prod: true
     }
@@ -336,6 +342,7 @@ export default {
       val || this.closeDelete()
     },
     inputData(data) {
+      console.log('new data:', data);
       this.buildTableRows(data[0], data.slice(1))
       this.appendWhoopData()
     }

@@ -50,7 +50,13 @@ export default {
   },
   methods: {
     setSampleData() {
-        this.$store.commit('setInputData', sampleTableData)
+      // format the user-friendly sample data into the way actual input gets formatted
+        // sort of a csv array of arrays, where arr[0] contains the headers and the preceeding arrays have data at corresponding indexes
+      // so that the sample data is easy to edit and doesn't require special cases in the logic
+      const headerFormatHeaders = Object.keys(sampleTableData[0])
+      const headerFormatData = sampleTableData.map((itm) => Object.values(itm))
+
+      this.$store.commit('setInputData', [headerFormatHeaders, ...headerFormatData])
     },
     showTable(){
       this.$store.commit('setPage', Pages.INPUT_TABLE)
