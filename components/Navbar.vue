@@ -46,7 +46,7 @@ export default {
     }),
     pageItems() {
       const disableTable = (!!this.inputData && !this.inputData.length) && (!!this.whoopData && !this.whoopData.length)  
-      const disableGraph = !(this.inputData.length || this.correlationData.length)
+      const disableGraph = !this.correlationData.length
 
       return Object.keys(Pages).map((k) => {
         let disabled = false

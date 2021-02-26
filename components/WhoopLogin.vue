@@ -122,49 +122,64 @@ export default {
       }
     },
     parseWhoopData(rawData) {
-      const interesting_columns = [
-        'day',
-        'sleep.qualityDuration',
-        'sleep.inBedDuration',
-        'sleep.score',
-        'strain.averageHeartRate',
-        'strain.score',
-        'strain.workouts.length',
-        'recovery.heartRateVariabilityRmssd',
-        'recovery.restingHeartRate',
-        'recovery.score'
+      const parsedData = [
+        [
+          'day',
+          'Sleep- Quality Duration',
+          'Sleep- In Bed Duration',
+          'Sleep- Score',
+          'Average Heart Rate',
+          'Strain Score',
+          'Activity Count',
+          'HRV',
+          'Resting Heart Rate',
+          'Recovery Score'
+        ]
       ]
 
-      return rawData.map((item) => {
+      rawData.forEach((item) => {
         const { days, sleep, strain, recovery } = item
         const nightSleep = sleep.sleeps.length
           ? sleep.sleeps.filter((s) => !s.isNap)[0]
           : null
         const noData = 'No Data'
 
-        return {
-          day: days[0],
-          sleepQualityDuration: nightSleep
-            ? this.parseMs(nightSleep.qualityDuration)
-            : noData,
-          sleepinBedDuration: nightSleep
-            ? this.parseMs(nightSleep.inBedDuration)
-            : noData,
-          sleepScore: sleep.score || noData,
-          averageHeartRate: strain.averageHeartRate || noData,
-          strainScore: strain.score ? strain.score.toFixed(1) : noData,
-          activityCount: strain.workouts.length,
-          HRV:
-            recovery && recovery.heartRateVariabilityRmssd
-              ? Math.round(recovery.heartRateVariabilityRmssd * 1000)
-              : noData,
-          restingHeartRate:
-            recovery && recovery.restingHeartRate
-              ? recovery.restingHeartRate
-              : noData,
-          recoveryScore: recovery && recovery.score ? recovery.score : noData
-        }
+        const day = days[0]
+        const sleepQualityDuration = nightSleep
+          ? this.parseMs(nightSleep.qualityDuration)
+          : noData
+        const sleepinBedDuration = nightSleep
+          ? this.parseMs(nightSleep.inBedDuration)
+          : noData
+        const sleepScore = sleep.score || noData
+        const averageHeartRate = strain.averageHeartRate || noData
+        const strainScore = strain.score ? strain.score.toFixed(1) : noData
+        const activityCount = strain.workouts.length
+        const HRV =
+          recovery && recovery.heartRateVariabilityRmssd
+            ? Math.round(recovery.heartRateVariabilityRmssd * 1000)
+            : noData
+        const restingHeartRate =
+          recovery && recovery.restingHeartRate
+            ? recovery.restingHeartRate
+            : noData
+        const recoveryScore =
+          recovery && recovery.score ? recovery.score : noData
+
+        parsedData.push([
+          day,
+          sleepQualityDuration,
+          sleepinBedDuration,
+          sleepScore,
+          averageHeartRate,
+          strainScore,
+          activityCount,
+          HRV,
+          restingHeartRate,
+          recoveryScore
+        ])
       })
+      return parsedData
     },
     parseMs(ms) {
       // 1- Convert to seconds:

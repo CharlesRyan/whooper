@@ -33,8 +33,7 @@ export default {
     InputMenu
   },
   data() {
-    return {
-    }
+    return {}
   },
   computed: {
     ...mapState({
@@ -42,23 +41,29 @@ export default {
       accentColorDark: (state) => state.accentColorDark,
       page: (state) => state.page,
       inputData: (state) => state.inputData,
-      whoopEmail: (state) => state.whoopEmail,
+      whoopEmail: (state) => state.whoopEmail
     }),
-    showTableCTA(){
-      return (this.inputData && this.inputData.length) || (this.whoopEmail && this.whoopEmail.length)
+    showTableCTA() {
+      return (
+        (this.inputData && this.inputData.length) ||
+        (this.whoopEmail && this.whoopEmail.length)
+      )
     }
   },
   methods: {
     setSampleData() {
       // format the user-friendly sample data into the way actual input gets formatted
-        // sort of a csv array of arrays, where arr[0] contains the headers and the preceeding arrays have data at corresponding indexes
+      // sort of a csv array of arrays, where arr[0] contains the headers and the preceeding arrays have data at corresponding indexes
       // so that the sample data is easy to edit and doesn't require special cases in the logic
       const headerFormatHeaders = Object.keys(sampleTableData[0])
       const headerFormatData = sampleTableData.map((itm) => Object.values(itm))
-
-      this.$store.commit('setInputData', [headerFormatHeaders, ...headerFormatData])
+      console.log('sample', [headerFormatHeaders, ...headerFormatData])
+      this.$store.commit('setInputData', [
+        headerFormatHeaders,
+        ...headerFormatData
+      ])
     },
-    showTable(){
+    showTable() {
       this.$store.commit('setPage', Pages.INPUT_TABLE)
     }
   }
@@ -67,14 +72,13 @@ export default {
 
 <style lang="scss" scoped>
 .intro {
-
   &__table-cta {
     margin-top: 30px;
   }
 
   .header-wrapper {
-      margin: 40px 0 60px;
-      max-width: 600px;
+    margin: 40px 0 60px;
+    max-width: 600px;
   }
 
   .menu-wrapper {

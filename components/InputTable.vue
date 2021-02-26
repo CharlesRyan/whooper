@@ -126,8 +126,8 @@ export default {
       colSnackbar: false,
       rowSnackbar: false,
       showDataImport: false,
-      prod: false
-      // prod: true
+      // prod: false
+      prod: true
     }
   },
   mounted() {
@@ -227,17 +227,17 @@ export default {
     },
     buildTableRows(header, rows) {
       // size limiting - columns
-      if (header.length > this.colLimit) {
-        header = header.slice(0, this.colLimit)
-        rows = rows.map((row) => row.slice(0, this.colLimit))
-        this.colSnackbar = true
-      }
+      // if (header.length > this.colLimit) {
+      //   header = header.slice(0, this.colLimit)
+      //   rows = rows.map((row) => row.slice(0, this.colLimit))
+      //   this.colSnackbar = true
+      // }
 
       // size limiting - rows
-      if (rows.length > this.rowLimit) {
-        rows = rows.slice(0, this.rowLimit)
-        this.rowSnackbar = true
-      }
+      // if (rows.length > this.rowLimit) {
+      //   rows = rows.slice(0, this.rowLimit)
+      //   this.rowSnackbar = true
+      // }
 
       const newRows = rows.map((row, rowIdx) => {
         const rowObj = {}
@@ -257,16 +257,8 @@ export default {
       this.tableLoading = false
     },
     initialize() {
-      if (this.inputData.length > 2) {
-        // Indicates it's sample data. Processed input would be an array of two arrays
-        this.tableRows = this.inputData
-        this.tableLoading = false
-      } else if (this.inputData.length) {
-        this.buildTableRows(this.inputData[0], this.inputData.slice(1))
-      }
-
+      this.buildTableRows(this.inputData[0], this.inputData.slice(1))
       this.appendWhoopData()
-
       this.setEditedItem({})
     },
     appendWhoopData() {
@@ -342,7 +334,7 @@ export default {
       val || this.closeDelete()
     },
     inputData(data) {
-      console.log('new data:', data);
+      console.log('new data:', data)
       this.buildTableRows(data[0], data.slice(1))
       this.appendWhoopData()
     }

@@ -1,6 +1,6 @@
 export default [
   {
-    day: '10/1',
+    day: '10/1/2020',
     coffee: '3',
     alcohol: '0',
     'energy rating': '3',
@@ -11,7 +11,7 @@ export default [
     exercise: false
   },
   {
-    day: '10/2',
+    day: '10/2/2020',
     coffee: '3',
     alcohol: '3',
     'energy rating': '3',
@@ -22,7 +22,7 @@ export default [
     exercise: false
   },
   {
-    day: '10/3',
+    day: '10/3/2020',
     coffee: '5',
     alcohol: '0',
     'energy rating': '2',
@@ -33,7 +33,7 @@ export default [
     exercise: true
   },
   {
-    day: '10/4',
+    day: '10/4/2020',
     coffee: '3',
     alcohol: '0',
     'energy rating': '3',
@@ -44,7 +44,7 @@ export default [
     exercise: false
   },
   {
-    day: '10/5',
+    day: '10/5/2020',
     coffee: '3',
     alcohol: '0',
     'energy rating': '3',
@@ -55,7 +55,7 @@ export default [
     exercise: false
   },
   {
-    day: '10/6',
+    day: '10/6/2020',
     coffee: '3',
     alcohol: '0',
     'energy rating': '3',
@@ -66,7 +66,7 @@ export default [
     exercise: true
   },
   {
-    day: '10/7',
+    day: '10/7/2020',
     coffee: '3',
     alcohol: '0',
     'energy rating': '3',
@@ -77,7 +77,7 @@ export default [
     exercise: false
   },
   {
-    day: '10/8',
+    day: '10/8/2020',
     coffee: '3',
     alcohol: '0',
     'energy rating': '3',
@@ -88,73 +88,7 @@ export default [
     exercise: false
   },
   {
-    day: '10/9',
-    coffee: '3',
-    alcohol: '0',
-    'energy rating': '3',
-    'emotional rating': '3',
-    'sleep duration': '8',
-    meditation: '20',
-    'morning sun': true,
-    exercise: true
-  },
-  {
-    day: '10/10',
-    coffee: '3',
-    alcohol: '0',
-    'energy rating': '3',
-    'emotional rating': '3',
-    'sleep duration': '8',
-    meditation: '20',
-    'morning sun': false,
-    exercise: false
-  },
-  {
-    day: '10/11',
-    coffee: '3',
-    alcohol: '0',
-    'energy rating': '3',
-    'emotional rating': '3',
-    'sleep duration': '8',
-    meditation: '20',
-    'morning sun': true,
-    exercise: false
-  },
-  {
-    day: '10/12',
-    coffee: '3',
-    alcohol: '0',
-    'energy rating': '3',
-    'emotional rating': '3',
-    'sleep duration': '8',
-    meditation: '20',
-    'morning sun': false,
-    exercise: true
-  },
-  {
-    day: '10/13',
-    coffee: '3',
-    alcohol: '0',
-    'energy rating': '3',
-    'emotional rating': '3',
-    'sleep duration': '8',
-    meditation: '20',
-    'morning sun': true,
-    exercise: false
-  },
-  {
-    day: '10/14',
-    coffee: '3',
-    alcohol: '0',
-    'energy rating': '3',
-    'emotional rating': '3',
-    'sleep duration': '8',
-    meditation: '20',
-    'morning sun': false,
-    exercise: false
-  },
-  {
-    day: '10/15',
+    day: '10/9/2020',
     coffee: '3',
     alcohol: '0',
     'energy rating': '3',
@@ -165,7 +99,7 @@ export default [
     exercise: true
   },
   {
-    day: '10/16',
+    day: '10/10/2020',
     coffee: '3',
     alcohol: '0',
     'energy rating': '3',
@@ -176,7 +110,7 @@ export default [
     exercise: false
   },
   {
-    day: '10/17',
+    day: '10/11/2020',
     coffee: '3',
     alcohol: '0',
     'energy rating': '3',
@@ -187,7 +121,7 @@ export default [
     exercise: false
   },
   {
-    day: '10/18',
+    day: '10/12/2020',
     coffee: '3',
     alcohol: '0',
     'energy rating': '3',
@@ -198,7 +132,7 @@ export default [
     exercise: true
   },
   {
-    day: '10/19',
+    day: '10/13/2020',
     coffee: '3',
     alcohol: '0',
     'energy rating': '3',
@@ -209,7 +143,7 @@ export default [
     exercise: false
   },
   {
-    day: '10/20',
+    day: '10/14/2020',
     coffee: '3',
     alcohol: '0',
     'energy rating': '3',
@@ -220,73 +154,7 @@ export default [
     exercise: false
   },
   {
-    day: '10/21',
-    coffee: '3',
-    alcohol: '0',
-    'energy rating': '3',
-    'emotional rating': '3',
-    'sleep duration': '8',
-    meditation: '20',
-    'morning sun': true,
-    exercise: true
-  },
-  {
-    day: '10/22',
-    coffee: '3',
-    alcohol: '0',
-    'energy rating': '3',
-    'emotional rating': '3',
-    'sleep duration': '8',
-    meditation: '20',
-    'morning sun': false,
-    exercise: false
-  },
-  {
-    day: '10/23',
-    coffee: '3',
-    alcohol: '0',
-    'energy rating': '3',
-    'emotional rating': '3',
-    'sleep duration': '8',
-    meditation: '20',
-    'morning sun': true,
-    exercise: false
-  },
-  {
-    day: '10/24',
-    coffee: '3',
-    alcohol: '0',
-    'energy rating': '3',
-    'emotional rating': '3',
-    'sleep duration': '8',
-    meditation: '20',
-    'morning sun': false,
-    exercise: true
-  },
-  {
-    day: '10/25',
-    coffee: '3',
-    alcohol: '0',
-    'energy rating': '3',
-    'emotional rating': '3',
-    'sleep duration': '8',
-    meditation: '20',
-    'morning sun': true,
-    exercise: false
-  },
-  {
-    day: '10/26',
-    coffee: '3',
-    alcohol: '0',
-    'energy rating': '3',
-    'emotional rating': '3',
-    'sleep duration': '8',
-    meditation: '20',
-    'morning sun': false,
-    exercise: false
-  },
-  {
-    day: '10/27',
+    day: '10/15/2020',
     coffee: '3',
     alcohol: '0',
     'energy rating': '3',
@@ -297,7 +165,7 @@ export default [
     exercise: true
   },
   {
-    day: '10/28',
+    day: '10/16/2020',
     coffee: '3',
     alcohol: '0',
     'energy rating': '3',
@@ -308,7 +176,7 @@ export default [
     exercise: false
   },
   {
-    day: '10/29',
+    day: '10/17/2020',
     coffee: '3',
     alcohol: '0',
     'energy rating': '3',
@@ -319,7 +187,7 @@ export default [
     exercise: false
   },
   {
-    day: '10/30',
+    day: '10/18/2020',
     coffee: '3',
     alcohol: '0',
     'energy rating': '3',
@@ -330,7 +198,139 @@ export default [
     exercise: true
   },
   {
-    day: '10/31',
+    day: '10/19/2020',
+    coffee: '3',
+    alcohol: '0',
+    'energy rating': '3',
+    'emotional rating': '3',
+    'sleep duration': '8',
+    meditation: '20',
+    'morning sun': true,
+    exercise: false
+  },
+  {
+    day: '10/20/2020',
+    coffee: '3',
+    alcohol: '0',
+    'energy rating': '3',
+    'emotional rating': '3',
+    'sleep duration': '8',
+    meditation: '20',
+    'morning sun': false,
+    exercise: false
+  },
+  {
+    day: '10/21/2020',
+    coffee: '3',
+    alcohol: '0',
+    'energy rating': '3',
+    'emotional rating': '3',
+    'sleep duration': '8',
+    meditation: '20',
+    'morning sun': true,
+    exercise: true
+  },
+  {
+    day: '10/22/2020',
+    coffee: '3',
+    alcohol: '0',
+    'energy rating': '3',
+    'emotional rating': '3',
+    'sleep duration': '8',
+    meditation: '20',
+    'morning sun': false,
+    exercise: false
+  },
+  {
+    day: '10/23/2020',
+    coffee: '3',
+    alcohol: '0',
+    'energy rating': '3',
+    'emotional rating': '3',
+    'sleep duration': '8',
+    meditation: '20',
+    'morning sun': true,
+    exercise: false
+  },
+  {
+    day: '10/24/2020',
+    coffee: '3',
+    alcohol: '0',
+    'energy rating': '3',
+    'emotional rating': '3',
+    'sleep duration': '8',
+    meditation: '20',
+    'morning sun': false,
+    exercise: true
+  },
+  {
+    day: '10/25/2020',
+    coffee: '3',
+    alcohol: '0',
+    'energy rating': '3',
+    'emotional rating': '3',
+    'sleep duration': '8',
+    meditation: '20',
+    'morning sun': true,
+    exercise: false
+  },
+  {
+    day: '10/26/2020',
+    coffee: '3',
+    alcohol: '0',
+    'energy rating': '3',
+    'emotional rating': '3',
+    'sleep duration': '8',
+    meditation: '20',
+    'morning sun': false,
+    exercise: false
+  },
+  {
+    day: '10/27/2020',
+    coffee: '3',
+    alcohol: '0',
+    'energy rating': '3',
+    'emotional rating': '3',
+    'sleep duration': '8',
+    meditation: '20',
+    'morning sun': true,
+    exercise: true
+  },
+  {
+    day: '10/28/2020',
+    coffee: '3',
+    alcohol: '0',
+    'energy rating': '3',
+    'emotional rating': '3',
+    'sleep duration': '8',
+    meditation: '20',
+    'morning sun': false,
+    exercise: false
+  },
+  {
+    day: '10/29/2020',
+    coffee: '3',
+    alcohol: '0',
+    'energy rating': '3',
+    'emotional rating': '3',
+    'sleep duration': '8',
+    meditation: '20',
+    'morning sun': true,
+    exercise: false
+  },
+  {
+    day: '10/30/2020',
+    coffee: '3',
+    alcohol: '0',
+    'energy rating': '3',
+    'emotional rating': '3',
+    'sleep duration': '8',
+    meditation: '20',
+    'morning sun': false,
+    exercise: true
+  },
+  {
+    day: '10/31/2020',
     coffee: '3',
     alcohol: '0',
     'energy rating': '3',
