@@ -122,54 +122,66 @@ export default {
       }
     },
     parseWhoopData(rawData) {
-      // returns same format as buildTableRows in InputTable
-      return rawData.map((item) => {
-        // declare column titles
-        const day = 'day'
-        const sleepQualityDuration = 'Sleep- Quality Duration'
-        const sleepinBedDuration = 'Sleep- In Bed Duration'
-        const sleepScore = 'Sleep- Score'
-        const averageHeartRate = 'Average Heart Rate'
-        const strainScore = 'Strain Score'
-        const activityCount = 'Activity Count'
-        const HRV = 'HRV'
-        const restingHeartRate = 'Resting Heart Rate'
-        const recoveryScore = 'Recovery Score'
+      // outputs csv-type array of arrays with [0] being the headers
+      // for easy merging with raw input data
+      const parsedData = [
+        [
+          'day',
+          'Sleep- Quality Duration',
+          'Sleep- In Bed Duration',
+          'Sleep- Score',
+          'Average Heart Rate',
+          'Strain Score',
+          'Activity Count',
+          'HRV',
+          'Resting Heart Rate',
+          'Recovery Score'
+        ]
+      ]
 
-        const parsedItem = {}
+      rawData.forEach((item) => {
         const { days, sleep, strain, recovery } = item
-
         const nightSleep = sleep.sleeps.length
           ? sleep.sleeps.filter((s) => !s.isNap)[0]
           : null
         const noData = 'No Data'
 
-        parsedItem[day] = days[0]
-        parsedItem[sleepQualityDuration] = nightSleep
+        const day = days[0]
+        const sleepQualityDuration = nightSleep
           ? this.parseMs(nightSleep.qualityDuration)
           : noData
-        parsedItem[sleepinBedDuration] = nightSleep
+        const sleepinBedDuration = nightSleep
           ? this.parseMs(nightSleep.inBedDuration)
           : noData
-        parsedItem[sleepScore] = sleep.score || noData
-        parsedItem[averageHeartRate] = strain.averageHeartRate || noData
-        parsedItem[strainScore] = strain.score
-          ? strain.score.toFixed(1)
-          : noData
-        parsedItem[activityCount] = strain.workouts.length
-        parsedItem[HRV] =
+        const sleepScore = sleep.score || noData
+        const averageHeartRate = strain.averageHeartRate || noData
+        const strainScore = strain.score ? strain.score.toFixed(1) : noData
+        const activityCount = strain.workouts.length
+        const HRV =
           recovery && recovery.heartRateVariabilityRmssd
             ? Math.round(recovery.heartRateVariabilityRmssd * 1000)
             : noData
-        parsedItem[restingHeartRate] =
+        const restingHeartRate =
           recovery && recovery.restingHeartRate
             ? recovery.restingHeartRate
             : noData
-        parsedItem[recoveryScore] =
+        const recoveryScore =
           recovery && recovery.score ? recovery.score : noData
 
-        return parsedItem
+        parsedData.push([
+          day,
+          sleepQualityDuration,
+          sleepinBedDuration,
+          sleepScore,
+          averageHeartRate,
+          strainScore,
+          activityCount,
+          HRV,
+          restingHeartRate,
+          recoveryScore
+        ])
       })
+      return parsedData
     },
     parseMs(ms) {
       // 1- Convert to seconds:

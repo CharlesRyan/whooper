@@ -22,7 +22,6 @@
     hr
 
     h3.inputs__options-label {{ labels.text }}
-    p(v-if="isModal") (Will replace all non-Whoop data)*
     input.text-input(
       type='textarea'
       @paste="onPaste"
@@ -47,7 +46,6 @@
       ) 
         p {{rowCount}} rows and {{colCount}} columns processed
 
-    sub.disclaimer(v-if="isModal") * Data merging will be available in a later version
 
 
 </template>
@@ -55,6 +53,8 @@
 <script>
 import { mapState } from 'vuex'
 import Papa from 'papaparse'
+
+import mergeData from '../helpers/mergeData'
 
 import WhoopLogin from './WhoopLogin'
 
@@ -122,7 +122,7 @@ export default {
         console.log('parseInput results', results)
         const newInputData = this.shouldOverwrite
           ? results.data
-          : this.consolidateData(this.inputData, results.data)
+          : mergeData(this.inputData, results.data)
 
         this.$store.commit('setInputData', newInputData)
         // display row/col count
@@ -132,81 +132,6 @@ export default {
         console.log(e)
         this.dataError = e
       }
-    },
-    getDateIdx(headers) {
-      const lowercaseHeaders = headers.map((h) => h.toLowerCase())
-      const dateIdx = lowercaseHeaders.indexOf('date')
-      const dayIdx = lowercaseHeaders.indexOf('day')
-      if (dateIdx !== -1) return dateIdx
-      if (dayIdx !== -1) return dayIdx
-      return -1
-    },
-    convertDates(data, dateIdx){
-      return data.map((row, i) => {
-          row[dateIdx] = new Date(row[dateIdx])
-          row[dateIdx].setHours(0,0,0,0)
-          return row
-        })
-    },
-    consolidateData(data1, data2) {
-      // concat headers
-      const joinedData = [[...data1[0], ...data2[0]]]
-
-      // need a way to zip together two datasets where the shorter one might have started earlier
-      const data1DateIdx = this.getDateIdx(data1[0])
-      const data2DateIdx = this.getDateIdx(data2[0])
-      const data1EmptyRow = data1[0].map((_) => null)
-      const data2EmptyRow = data2[0].map((_) => null)
-      const count = data1.length + data2.length
-
-      if (data1DateIdx !== -1 && data2DateIdx !== -1) {
-        // both have dates, align arrays
-        // set all items at the indexes to date objects for comparison
-        // and drop the headers since they're already joined above
-        const newData1 = this.convertDates(data1.slice(1), data1DateIdx)
-        const newData2 = this.convertDates(data2.slice(1), data2DateIdx)
-
-        for (let i = 0; i < count; i++) {
-          if (!newData2[i] && !newData1[i]) break // count is gonna be longer than both
-          // populate the two arrays with their missing pieces
-          if (!newData1[i]) {
-            // fill all nulls for the shorter one
-            newData1[i] = [...data1EmptyRow]
-          } else if (!newData2[i]) {
-            // fill all nulls for the shorter one
-            newData2[i] = [...data2EmptyRow]
-          } else if (newData1[i][data1DateIdx] < newData2[i][data2DateIdx]) {
-            // add array of nulls at beginning to shift back the later starting array
-            newData2.unshift([...data2EmptyRow])
-          } else if (newData1[i][data1DateIdx] > newData2[i][data2DateIdx]) {
-            // add array of nulls at beginning to shift back the later starting array
-            newData1.unshift([...data1EmptyRow])
-          }
-        }
-        // zip together
-        newData1.forEach((row, i) => joinedData.push([...row, ...newData2[i]]))
-      } else {
-        // simple merge without date considerations
-        for (let i = 1; i < count; i++) {
-          if (!data2[i] && !data1[i]) break // count is gonna be longer than both
-          // populate the two arrays with their missing pieces
-          if (!data1[i]) {
-            // fill all nulls for the shorter one
-            data1[i] = [...data1EmptyRow]
-          } else if (!data2[i]) {
-            // fill all nulls for the shorter one
-            data2[i] = [...data2EmptyRow]
-          }
-        }
-        console.log('should match(dateless)', data1.length, data2.length)
-        // zip together
-        data1.forEach((row, i) => {
-          // skip headers
-          if (i > 0) joinedData.push([...row, ...data2[i]])
-        })
-      }
-
-      return joinedData
     },
     showInput(name) {
       this.activeInput = name

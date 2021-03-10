@@ -86,6 +86,7 @@ import axios from 'axios'
 import { mapState } from 'vuex'
 
 import sampleResponse from '../assets/js/testResponse'
+import mergeData from '../helpers/mergeData'
 
 import Pages from '../pages'
 
@@ -257,13 +258,14 @@ export default {
       this.tableLoading = false
     },
     initialize() {
-      this.buildTableRows(this.inputData[0], this.inputData.slice(1))
-      this.appendWhoopData()
+      // add whoop data if available
+      const rawTableData = this.whoopData.length ? mergeData(this.inputData, this.whoopData) : this.inputData
+      this.buildTableRows(rawTableData[0], rawTableData.slice(1))
       this.setEditedItem({})
     },
     appendWhoopData() {
       if (this.whoopData.length) {
-        this.tableRows = [...this.tableRows, ...this.whoopData]
+        this.tableRows = mergeData(this.tableRows, this.whoopData)
       }
     },
     editItem(item) {
@@ -335,8 +337,9 @@ export default {
     },
     inputData(data) {
       console.log('new data:', data)
-      this.buildTableRows(data[0], data.slice(1))
-      this.appendWhoopData()
+      // add whoop data if available
+      const rawTableData = this.whoopData.length ? mergeData(data, this.whoopData) : data
+      this.buildTableRows(rawTableData[0], rawTableData.slice(1))
     }
   },
   filters: {
