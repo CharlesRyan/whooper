@@ -41,12 +41,12 @@ export default {
       accentColorDark: (state) => state.accentColorDark,
       page: (state) => state.page,
       inputData: (state) => state.inputData,
-      whoopEmail: (state) => state.whoopEmail
+      whoopData: (state) => state.whoopData
     }),
     showTableCTA() {
       return (
         (this.inputData && this.inputData.length) ||
-        (this.whoopEmail && this.whoopEmail.length)
+        (this.whoopData && this.whoopData.length)
       )
     }
   },
@@ -79,6 +79,10 @@ export default {
   .header-wrapper {
     margin: 40px 0 60px;
     max-width: 600px;
+
+    p {
+      margin-top: 8px;
+    }
   }
 
   .menu-wrapper {
