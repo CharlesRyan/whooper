@@ -1,6 +1,5 @@
 export default {
-  // mode: 'ssr',
-  mode: 'spa',
+  ssr: false,
   /*
    ** Headers of the page
    */
@@ -20,7 +19,7 @@ export default {
   /*
    ** Customize the progress-bar color
    */
-  loading: { color: '#fff' },
+  loading: { color: '#000' },
   /*
    ** Global CSS
    */
