@@ -30,7 +30,7 @@
 
     hr
 
-    h3.inputs__options-label Connect your Whoop account
+    h3.inputs__options-label Import Whoop data
     WhoopLogin(
       :ctaText="whoopLabel"
     )
@@ -81,8 +81,8 @@ export default {
       inputData: (state) => state.inputData
     }),
     labels() {
-      const file = 'Upload a file (tsv/csv)'
-      const text = 'Paste cells from a spreadsheet or tsv/csv formatted text'
+      const file = 'Upload a file (TSV/CSV)'
+      const text = 'Paste cells from a spreadsheet or CSV text'
 
       return {
         file,

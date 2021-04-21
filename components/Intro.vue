@@ -9,13 +9,15 @@
       v-btn(
         color='primary'
         @click="setSampleData"
-      ) Just use sample data
+      ) Use sample data
     v-btn.intro__table-cta(
       color='primary'
       v-if="showTableCTA"
       @click="showTable"
       large
-    ) Continue to Data Table >
+    ) 
+      span View Data Table 
+      v-icon mdi-chevron-right
 
 </template>
 

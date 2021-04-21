@@ -19,7 +19,9 @@ const mergeData = (data1, data2) => {
   console.log('data1', data1)
   console.log('data2', data2)
   // concat headers
-  let joinedData = [[...data1[0], ...data2[0]]]
+  let joinedData = []
+  if (data1[0] && data1[0].length) joinedData.push(...data1[0])
+  if (data2[0] && data2[0].length) joinedData.push(...data2[0])
 
   const data1DateIdx = getDateIdx(data1[0])
   const data2DateIdx = getDateIdx(data2[0])

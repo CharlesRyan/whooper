@@ -1,7 +1,8 @@
 <template lang="pug">
   .footer.mb-2
-    p 2020 -
-    a(href="https://charlesryan.dev") Charles
+    //- p &copy; 2021
+    a(href="https://charlesryan.dev" target="_blank") 
+      img(src="/favicon.png" alt="a logo of the letters C and R combined, standing for Charles Ryan")
 
 </template>
 

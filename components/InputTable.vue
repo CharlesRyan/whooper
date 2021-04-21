@@ -240,6 +240,9 @@ export default {
       //   this.rowSnackbar = true
       // }
 
+      // optimistically this means table rows already built
+      if(!Array.isArray(header)) return;
+
       const newRows = rows.map((row, rowIdx) => {
         const rowObj = {}
         header.forEach((headItm, headIdx) => {
@@ -258,8 +261,17 @@ export default {
       this.tableLoading = false
     },
     initialize() {
-      // add whoop data if available
-      const rawTableData = this.whoopData.length ? mergeData(this.inputData, this.whoopData) : this.inputData
+      // use whatever's available, merging from separate sources if needed
+      let rawTableData = []
+      
+      if (this.whoopData.length && this.inputData.length) {
+        rawTableData = mergeData(this.inputData, this.whoopData)
+      } else if (this.whoopData.length) {
+        rawTableData = this.whoopData
+      } else {
+        rawTableData = this.inputData
+      }
+
       this.buildTableRows(rawTableData[0], rawTableData.slice(1))
       this.setEditedItem({})
     },
@@ -338,7 +350,9 @@ export default {
     inputData(data) {
       console.log('new data:', data)
       // add whoop data if available
-      const rawTableData = this.whoopData.length ? mergeData(data, this.whoopData) : data
+      const rawTableData = this.whoopData.length
+        ? mergeData(data, this.whoopData)
+        : data
       this.buildTableRows(rawTableData[0], rawTableData.slice(1))
     }
   },

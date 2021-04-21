@@ -3,7 +3,7 @@
     v-expansion-panels.my-10
       //- Options
       v-expansion-panel
-        v-expansion-panel-header Connection Options
+        v-expansion-panel-header Options
         v-expansion-panel-content.graph__options
           v-divider
           v-row.flex-row.flex-wrap(
@@ -69,7 +69,7 @@
                   outlined
                 ) {{ node }}
       v-expansion-panel
-        v-expansion-panel-header Node options
+        v-expansion-panel-header Show/Hide Nodes
         v-expansion-panel-content
           v-divider
           v-row.flex-row.graph__node-toggle-buttons.py-5
