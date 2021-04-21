@@ -1,8 +1,5 @@
 <template lang="pug">
   .container.whoop
-    //- .whoop__login(v-if="!user.id")
-    //-   input(type='text')
-    //-   input(type='password')
     .whoop__charts
       .whoop__chart#chart
 

@@ -111,11 +111,8 @@
 </template>
 
 <script>
-import axios from 'axios'
 import D3Network from 'vue-d3-network'
 import { mapState } from 'vuex'
-
-const rawCorrelations = require('../backend/output/correlations.json')
 
 import Footer from './Footer'
 
@@ -160,7 +157,6 @@ export default {
       )
     },
     currentLinks() {
-      // return this.allLinks
       const sigLimit = this.minSignificance / 100
       return this.allLinks.filter((link) => {
         if (link.source && link.target) {
@@ -169,6 +165,7 @@ export default {
           const matchesDirection =
             (this.showPositiveLinks && link.significance > 0) ||
             (this.showNegativeLinks && link.significance < 0)
+
           // if picker mode active, check if link should be shown
           const hasBeenPicked = !this.nodePickerActive || this.isPicked(link)
 
@@ -181,7 +178,6 @@ export default {
       })
     },
     currentNodes() {
-      // return this.allNodes
       return this.allNodes.filter((node) => node.active)
     },
     graphOptions() {
@@ -234,7 +230,7 @@ export default {
       const significanceLimit = 0.1
       const maxStrokeWidth = 10
       const opacityFloor = 0.3
-      // lookup table reduces duplicate links  fed into graph component
+      // lookup table reduces duplicate links fed into graph component
       const linkTable = {}
       const allLinks = []
 

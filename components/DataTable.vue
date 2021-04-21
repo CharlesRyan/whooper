@@ -9,7 +9,6 @@
               justify="space-around"
               align="center"
             )
-              //- v-col.col-12(
               v-col.col-12.col-xs-12.col-sm-12.col-md-4.col-lg-2(
                 v-for="header in rawHeaders"
                 :key="header.value"
@@ -162,9 +161,5 @@ export default {
   display: flex;
   justify-content: space-between;
   flex-direction: column;
-
-  &__options {
-    // max-height: 200px;
-  }
 }
 </style>

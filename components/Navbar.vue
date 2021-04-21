@@ -1,6 +1,5 @@
 <template lang="pug">
   .navbar
-    //- :color="accentColorDark"
     v-app-bar(
         dark
       )

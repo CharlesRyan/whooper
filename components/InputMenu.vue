@@ -3,12 +3,6 @@
     :class="isModal ? 'is-modal' : 'embedded'"
   )
   .inputs__options
-    //- .inputs__overwrite-wrap(v-if="isModal" mandatory)
-    //-   v-radio-group(v-model="shouldOverwrite" light)
-    //-     v-radio(label="Add new data to current data" :value='false')
-    //-     v-radio(label="Replace current data with new data" :value='true')
-
-    //- hr(v-if="isModal")
 
     h3.inputs__options-label {{ labels.file }}
     p(v-if="isModal") (Will replace all non-Whoop data)*
