@@ -1,4 +1,5 @@
 const getDateIdx = (headers) => {
+  if (!headers || !headers.length) return -1
   const lowercaseHeaders = headers.map((h) => h.toLowerCase())
   const dateIdx = lowercaseHeaders.indexOf('date')
   const dayIdx = lowercaseHeaders.indexOf('day')
@@ -18,6 +19,9 @@ const convertDates = (data, dateIdx) => {
 const mergeData = (data1, data2) => {
   console.log('data1', data1)
   console.log('data2', data2)
+  if (!data1 || !data1.length) return data2
+  if (!data2 || !data2.length) return data1
+
   // concat headers
   let joinedData = []
   if (data1[0] && data1[0].length) joinedData.push(...data1[0])

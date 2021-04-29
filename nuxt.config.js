@@ -27,11 +27,12 @@ export default {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: [{src: '~plugins/vuetify', ssr: true}],
+  plugins: [{ src: '~plugins/vuetify', ssr: true }],
   /*
    ** Nuxt.js dev-modules
    */
   buildModules: [
+    '@nuxtjs/google-analytics'
     // '@nuxtjs/eslint-module',
     // '@nuxtjs/stylelint-module'
   ],
@@ -59,6 +60,12 @@ export default {
           accent: '#F4A261'
         }
       }
+    }
+  },
+  googleAnalytics: {
+    id: 'G-5J5YJS37LK',
+    autoTracking: {
+      screenview: true
     }
   }
 }

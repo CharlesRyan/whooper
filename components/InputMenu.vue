@@ -97,6 +97,12 @@ export default {
       reader.readAsText(file, 'UTF-8')
       reader.onload = (evt) => {
         this.parseInput(evt.target.result)
+
+        this.$ga.event({
+          eventCategory: 'Data Input',
+          eventAction: 'File upload',
+          eventLabel: 'File upload',
+        })
       }
       reader.onerror = (evt) => {
         console.error(evt)
@@ -109,6 +115,12 @@ export default {
       const data = Array.from(items).find((itm) => itm.type === 'text/plain')
       if (!data) return
       data.getAsString(this.parseInput)
+      
+      this.$ga.event({
+          eventCategory: 'Data Input',
+          eventAction: 'Data pasted into textbox',
+          eventLabel: 'Data pasted into textbox',
+        })
     },
     parseInput(input) {
       try {
@@ -125,6 +137,12 @@ export default {
       } catch (e) {
         console.log(e)
         this.dataError = e
+
+        this.$ga.event({
+          eventCategory: 'Error',
+          eventAction: 'InputMenu parseInput error',
+          eventLabel: 'InputMenu parseInput error',
+        })
       }
     },
     showInput(name) {

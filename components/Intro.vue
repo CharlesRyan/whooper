@@ -64,6 +64,12 @@ export default {
         headerFormatHeaders,
         ...headerFormatData
       ])
+
+      this.$ga.event({
+        eventCategory: 'Data Input',
+        eventAction: 'Sample data selection',
+        eventLabel: 'Sample data selection'
+      })
     },
     showTable() {
       this.$store.commit('setPage', Pages.INPUT_TABLE)

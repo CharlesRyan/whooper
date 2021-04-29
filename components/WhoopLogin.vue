@@ -119,6 +119,13 @@ export default {
           this.passwordRules = [(v) => !!v || 'Password is required']
         }, 5000)
         console.log('handleSubmit fail', e)
+
+
+        this.$ga.event({
+          eventCategory: 'Error',
+          eventAction: 'WhoopLogin fetchAuthData error',
+          eventLabel: 'WhoopLogin fetchAuthData error',
+        })
       }
     },
     parseWhoopData(rawData) {
@@ -210,9 +217,22 @@ export default {
       try {
         const response = await axios.get(url, { params, headers })
         console.log('response', response)
+
+        this.$ga.event({
+          eventCategory: 'Data Input',
+          eventAction: 'Whoop data fetch',
+          eventLabel: 'Whoop data fetch',
+        })
         return response.data
       } catch (e) {
         console.log('data error', e)
+        
+        this.$ga.event({
+          eventCategory: 'Error',
+          eventAction: 'WhoopLogin getWhoopData error',
+          eventLabel: 'WhoopLogin getWhoopData error',
+        })
+
         return null
       }
     },

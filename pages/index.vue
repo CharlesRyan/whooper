@@ -66,7 +66,12 @@ export default {
       page: (state) => state.page
     })
   },
-  methods: {}
+  watch: {
+    page(newPage) {
+      this.$ga.page(`/${encodeURIComponent(newPage)}`)
+    }
+  }
+
 }
 </script>
 

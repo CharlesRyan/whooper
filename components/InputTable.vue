@@ -197,6 +197,12 @@ export default {
         this.$store.commit('setPage', Pages.GRAPH)
       } catch (e) {
         console.log('data error', e)
+
+        this.$ga.event({
+          eventCategory: 'Error',
+          eventAction: 'InputTable analyze AWS error',
+          eventLabel: 'InputTable analyze AWS error'
+        })
       } finally {
         this.networkLoading = false
       }
@@ -241,7 +247,7 @@ export default {
       // }
 
       // optimistically this means table rows already built
-      if(!Array.isArray(header)) return;
+      if (!Array.isArray(header)) return
 
       const newRows = rows.map((row, rowIdx) => {
         const rowObj = {}
@@ -263,7 +269,7 @@ export default {
     initialize() {
       // use whatever's available, merging from separate sources if needed
       let rawTableData = []
-      
+
       if (this.whoopData.length && this.inputData.length) {
         rawTableData = mergeData(this.inputData, this.whoopData)
       } else if (this.whoopData.length) {
